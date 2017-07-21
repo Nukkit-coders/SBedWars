@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="nukkit">
+    <CLASSES>
+      <root url="jar://E:/hhm/Nukkit/nukkit.jar!/" />
+      <root url="file://E:/hhm/Nukkit/plugins" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://E:/hhm/Nukkit/plugins" recursive="false" />
+  </library>
+</component>
