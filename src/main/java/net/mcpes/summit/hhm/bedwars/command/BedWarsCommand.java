@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.utils.TextFormat;
 import net.mcpes.summit.hhm.bedwars.SBedWars;
 import net.mcpes.summit.hhm.bedwars.SBedWarsAPI;
 import net.mcpes.summit.hhm.bedwars.config.RoomConfig;
@@ -79,7 +80,11 @@ public class BedWarsCommand extends Command {
                 }
                 break;
             case "help":
-                sender.sendMessage("没有滚");
+                sender.sendMessage(TextFormat.YELLOW+"====SBed War====");
+                sender.sendMessage(TextFormat.GREEN+"help - 查询帮助");
+                sender.sendMessage(TextFormat.GREEN+"join <房间id> - 加入房间");
+                sender.sendMessage(TextFormat.GREEN+"quit - 退出房间");
+                sender.sendMessage(TextFormat.GREEN+"set - 设置房间(支持多房间)");
                 break;
             case "set":
                 if (!sender.isOp()) {
@@ -113,7 +118,7 @@ public class BedWarsCommand extends Command {
                                                 HashMap<String, Object> td = team.get(data.getCanTeam());
                                                 if (!td.containsKey("name")) {
                                                     if (td.containsKey("shopPos")) {
-                                                        sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步是输入/bw set team <队伍名字>来设置第" + (data.getCanTeam() + 1) + "个队伍的名字");
+                                                        sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步是输入/bw set team name <队伍名字>来设置第" + (data.getCanTeam() + 1) + "个队伍的名字");
                                                     }
                                                     if (td.containsKey("bedPos")) {
                                                         td.put("shopPos", ((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
@@ -194,8 +199,12 @@ public class BedWarsCommand extends Command {
                                                 }
                                                 data.setResourcesType(type);
                                                 int rid = data.getId();
-                                                RoomConfig rc = new RoomConfig(rid);
-                                                rc.addRoom(data);
+                                                try {
+                                                    RoomConfig rc = new RoomConfig(rid);
+                                                    rc.addRoom(data);
+                                                }catch (NoClassDefFoundError e){
+                                                    e.printStackTrace();
+                                                }
                                                 add.remove(sender.getName());
                                                 try {
                                                     Server.getInstance().unloadLevel(Server.getInstance().getLevelByName(data.getGameWorld()));
