@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static final String DEFAULT_TITLE = "§l§e[§6S§eB§de§3d§6W§aa§4r§5s§e] §6";
-    public static final String VERSION = "1.0.0 TEST";
+    public static final String VERSION = "1.0.0";
     public static final String GAMESTATUS_WAIT = "§6等待加入";
     public static final String GAMESTATUS_SOON = "§6即将开始";
     public static final String GAMESTATUS_START = "§6游戏开始";
@@ -72,7 +72,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         copper = Item.get(336, 0, 1);
         copper.setCustomName(DEFAULT_TITLE + "§6铜");
         this.initConfig();
-        this.getServer().getLogger().info(DEFAULT_TITLE + "加载成功");
+        this.getServer().getLogger().info(DEFAULT_TITLE + VERSION + " 加载成功");
     }
 
     @Override
@@ -84,12 +84,12 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         this.loadWorlds();
         this.loadAllRoom();
         this.registerComposes();
-        this.getServer().getLogger().info(DEFAULT_TITLE + "启动成功");
+        this.getServer().getLogger().info(DEFAULT_TITLE + VERSION + " 启动成功");
     }
 
     @Override
     public void onDisable() {
-        this.getServer().getLogger().info(DEFAULT_TITLE + "关闭成功");
+        this.getServer().getLogger().info(DEFAULT_TITLE + VERSION + " 关闭成功");
     }
 
     private void initConfig() {
