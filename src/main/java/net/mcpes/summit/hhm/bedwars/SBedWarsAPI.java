@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.level.Location;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author hhm
@@ -27,19 +27,19 @@ public interface SBedWarsAPI {
 
     void loadWorld(String worldName) throws IOException;
 
-    void broadcastMessage(ArrayList<Player> p, String msg);
+    void broadcastMessage(CopyOnWriteArrayList<Player> p, String msg);
 
-    void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg);
+    void broadcastTitle(CopyOnWriteArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg);
 
-    void broadcastSound(ArrayList<Player> p, int type);
+    void broadcastSound(CopyOnWriteArrayList<Player> p, int type);
 
-    void broadcastTip(ArrayList<Player> p, String msg);
+    void broadcastTip(CopyOnWriteArrayList<Player> p, String msg);
 
-    void broadcastSpeak(ArrayList<Player> p, String pn, String msg);
+    void broadcastSpeak(CopyOnWriteArrayList<Player> p, String pn, String msg);
 
-    void broadcastTeamSpeak(ArrayList<String> p, String pn, String msg);
+    void broadcastTeamSpeak(CopyOnWriteArrayList<String> p, String pn, String msg);
 
-    void broadcastTeamMessage(ArrayList<String> p, String msg);
+    void broadcastTeamMessage(CopyOnWriteArrayList<String> p, String msg);
 
     int isPlayerGaming(String name);
 

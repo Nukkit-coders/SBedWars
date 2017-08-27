@@ -192,8 +192,8 @@ public class RoomData {
     public void setTeamData(HashMap<Integer, HashMap<String, Object>> teamData, int type) {
         this.teamData = teamData;
         if (type == 2) return;
-        for (Integer id : teamData.keySet()) {
-            HashMap<String, Object> team = teamData.get(id);
+        for (Integer id : this.teamData.keySet()) {
+            HashMap<String, Object> team = this.teamData.get(id);
             String[] a = team.get("gamePos").toString().split(":");
             team.put("gameLocation", (new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3]))));
             a = team.get("shopPos").toString().split(":");

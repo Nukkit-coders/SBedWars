@@ -32,7 +32,11 @@ public class SignListener implements Listener {
                     if (touch.containsKey(event.getPlayer().getName()) && touch.get(event.getPlayer().getName()).equals(pos)) {
                         touch.remove(event.getPlayer().getName());
                         if (SBedWars.games.containsKey(room)) {
-                            SBedWars.games.get(room).onJoin(event.getPlayer());
+                            if (games.get(room).getGameMode() < 3) {
+                                SBedWars.games.get(room).onJoin(event.getPlayer());
+                            } else {
+                                event.getPlayer().sendMessage(DEFAULT_TITLE + "§c游戏已经开始!");
+                            }
                         } else {
                             new BedWars(room).onJoin(event.getPlayer());
                         }

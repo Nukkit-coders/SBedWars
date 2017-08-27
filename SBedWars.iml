@@ -14,7 +14,7 @@
     <orderEntry type="module-library">
       <library name="Maven: cn.nukkit:nukkit:1.0-SNAPSHOT">
         <CLASSES>
-          <root url="jar://F:/Nukkit/nukkit-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://E:/Nukkit/nukkit-1.0-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -16,6 +16,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.CraftingDataPacket;
 import cn.nukkit.plugin.PluginBase;
 import net.mcpes.summit.hhm.bedwars.command.BedWarsCommand;
+import net.mcpes.summit.hhm.bedwars.config.MasterConfig;
 import net.mcpes.summit.hhm.bedwars.config.RoomConfig;
 import net.mcpes.summit.hhm.bedwars.data.RoomData;
 import net.mcpes.summit.hhm.bedwars.game.BedWars;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author hhm
@@ -38,7 +40,7 @@ import java.util.Map;
 
 public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static final String DEFAULT_TITLE = "§l§e[§6S§eB§de§3d§6W§aa§4r§5s§e] §6";
-    public static final String VERSION = "1.0.0 TEST";
+    public static final String VERSION = "0.1.0";
     public static final String GAMESTATUS_WAIT = "§6等待加入";
     public static final String GAMESTATUS_SOON = "§6即将开始";
     public static final String GAMESTATUS_START = "§6游戏开始";
@@ -46,16 +48,22 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static final String GAMESTATUS_RELOAD = "§6重载房间";
     public static HashMap<Integer, BedWars> games = new HashMap<>();
     public static HashMap<Integer, RoomData> rooms = new HashMap<>();
-    public static HashMap<Integer, HashMap<String, ArrayList<Player>>> players = new HashMap<>();
+    public static HashMap<Integer, HashMap<String, CopyOnWriteArrayList<Player>>> players = new HashMap<>();
     public static HashMap<String, Integer> gaming = new HashMap<>();
     public static HashMap<String, String> touch = new HashMap<>();
     public static HashMap<String, RoomData> add = new HashMap<>();
+    public static HashMap<String, Item[]> playerBag = new HashMap<>();
     public static ArrayList<ShapedRecipe> bedWarsComposes = new ArrayList<>();
     public static CraftingDataPacket craftingDataPacket = new CraftingDataPacket();
     public static Item gold;
     public static Item silver;
     public static Item copper;
     private static SBedWars instance;
+    private static MasterConfig mc;
+
+    public static MasterConfig getMc() {
+        return mc;
+    }
 
     public static SBedWars getInstance() {
         return instance;
@@ -64,6 +72,9 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     @Override
     public void onLoad() {
         instance = this;
+        mc = new MasterConfig();
+        mc.load();
+        mc.save();
         gold = Item.get(266, 0, 1);
         gold.setCustomName(DEFAULT_TITLE + "§e金");
         silver = Item.get(265, 0, 1);
@@ -221,7 +232,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastMessage(ArrayList<Player> p, String msg) {
+    public void broadcastMessage(CopyOnWriteArrayList<Player> p, String msg) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.sendMessage(DEFAULT_TITLE + msg);
@@ -230,7 +241,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg) {
+    public void broadcastTitle(CopyOnWriteArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.setTitleAnimationTimes(fadeIn, stay, fadeOut);
@@ -244,7 +255,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastSound(ArrayList<Player> p, int type) {
+    public void broadcastSound(CopyOnWriteArrayList<Player> p, int type) {
         switch (type) {
             case 1:
                 for (Player pl : p) {
@@ -262,7 +273,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTip(ArrayList<Player> p, String msg) {
+    public void broadcastTip(CopyOnWriteArrayList<Player> p, String msg) {
         for (Player pl : p) {
             if (pl.isOnline())
                 pl.sendTip(msg);
@@ -270,14 +281,14 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastSpeak(ArrayList<Player> p, String pn, String msg) {
+    public void broadcastSpeak(CopyOnWriteArrayList<Player> p, String pn, String msg) {
         for (Player pl : p) {
             pl.sendMessage(DEFAULT_TITLE + "§7<§b" + pn + "§7>§6: " + msg);
         }
     }
 
     @Override
-    public void broadcastTeamSpeak(ArrayList<String> p, String pn, String msg) {
+    public void broadcastTeamSpeak(CopyOnWriteArrayList<String> p, String pn, String msg) {
         for (String name : p) {
             Player pl = this.getServer().getPlayerExact(name);
             pl.sendMessage(DEFAULT_TITLE + "§7<§b" + pn + "§7>§6: " + msg);
@@ -285,8 +296,8 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTeamMessage(ArrayList<String> p, String msg) {
-        ArrayList<Player> players = new ArrayList<>();
+    public void broadcastTeamMessage(CopyOnWriteArrayList<String> p, String msg) {
+        CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>();
         for (String name : p) {
             Player pl = this.getServer().getPlayerExact(name);
             players.add(pl);
@@ -444,6 +455,11 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         bedWarsComposes.add(new BigShapedRecipe(
                 bowLv3, "GGG", "GGG", "GGG"
         ).setIngredient("G", gold));//弓3
+        Item arrow = Item.get(Item.ARROW, 0, 1);
+        arrow.setCustomName(DEFAULT_TITLE + "§f");
+        bedWarsComposes.add(new BigShapedRecipe(
+                arrow, "GXG", "XXG", "GGG"
+        ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//箭
         Item ironBoots = Item.get(Item.IRON_BOOTS, 0, 1);
         ironBoots.setCustomName(DEFAULT_TITLE + "§f铁鞋-与铁头盔一起穿戴可防御击退");
         ironBoots.setCustomBlockData(new CompoundTag().putString("bedWars", "ironBoots"));
