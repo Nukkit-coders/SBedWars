@@ -1,4 +1,1 @@
-#SBedWars
-
-----------
-by hhm
+# SBedWars
