@@ -29,6 +29,10 @@ public interface SBedWarsAPI {
 
     void broadcastMessage(ArrayList<Player> p, String msg);
 
+    void broadcastMessage2(ArrayList<Player> p, String msg,Player player);
+
+    void broadcastMessage3(ArrayList<Player> p, String msg,Player player);
+
     void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg);
 
     void broadcastSound(ArrayList<Player> p, int type);

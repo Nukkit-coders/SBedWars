@@ -6,17 +6,17 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockSignPost;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.particle.FloatingTextParticle;
 import cn.nukkit.scheduler.PluginTask;
+import cn.nukkit.utils.TextFormat;
 import net.mcpes.summit.hhm.bedwars.SBedWars;
 import net.mcpes.summit.hhm.bedwars.SBedWarsAPI;
 import net.mcpes.summit.hhm.bedwars.data.RoomData;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 import static net.mcpes.summit.hhm.bedwars.SBedWars.*;
 
@@ -60,24 +60,28 @@ public class BedWars {
     public synchronized void onJoin(Player player) {
         if (this.getAllPlayers().contains(player)) return;
         if (this.getAlivePlayers().size() < data.getMax()) {
-            gaming.put(player.getName(), this.id);
-            this.addPlayer(player);
-            this.resetSign();
-            SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§7<§b" + player.getName() + "§7> §6加入了房间! (" + this.getAllPlayers().size() + "/" + data.getMax() + ")");
-            player.teleport(data.getWaitLocation());
-            player.sendMessage(DEFAULT_TITLE + "§4已经保存背包物品");
-            //TODO: save bag and config
-            this.giveBag(player);
-            player.dataPacket(craftingDataPacket);
-            player.sendMessage(DEFAULT_TITLE + "§6已经更换了您的背包,可在游戏结束后输入/sw bag拿回物品(关服重启之前,如果在关服重启之后,神器,附魔等高级物品将消失掉原本效果)");
-            player.setGamemode(0);
-            player.getInventory().clearAll();
-            player.sendMessage(DEFAULT_TITLE + "§7已经更换为生存模式!");
-            if (this.getAllPlayers().size() == data.getMin()) {
-                this.setGameMode(2);
-                Server.getInstance().getScheduler().scheduleRepeatingTask(new WaitTask(this.data, this), 20);
+            if(this.gameMode == 1) {
+                gaming.put(player.getName(), this.id);
+                this.addPlayer(player);
+                this.resetSign();
+                SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§7<§b" + player.getName() + "§7> §6加入了房间! (" + this.getAllPlayers().size() + "/" + data.getMax() + ")");
+                player.teleport(data.getWaitLocation());
+                player.sendMessage(DEFAULT_TITLE + "§4已经保存背包物品");
+                //TODO: save bag and config
+                this.giveBag(player);
+                player.dataPacket(craftingDataPacket);
+                player.sendMessage(DEFAULT_TITLE + "§6已经更换了您的背包,可在游戏结束后输入/sw bag拿回物品(关服重启之前,如果在关服重启之后,神器,附魔等高级物品将消失掉原本效果)");
+                player.setGamemode(0);
+                player.getInventory().clearAll();
+                player.sendMessage(DEFAULT_TITLE + "§7已经更换为生存模式!");
+                if (this.getAllPlayers().size() == data.getMin()) {
+                    this.setGameMode(2);
+                    Server.getInstance().getScheduler().scheduleRepeatingTask(new WaitTask(this.data, this), 20);
+                }
+                player.sendMessage(DEFAULT_TITLE + "成功加入" + id + "号房间");
+            } else {
+                player.sendMessage(DEFAULT_TITLE + "房间当前状态无法加入");
             }
-            player.sendMessage(DEFAULT_TITLE + "成功加入" + id + "号房间");
         } else {
             player.sendMessage(DEFAULT_TITLE + "房间人数达到最大值,无法加入");
         }
@@ -129,6 +133,11 @@ public class BedWars {
         this.setGameMode(4);
         this.resetSign();
         this.resetRoom();
+        for(Player player : this.getAllPlayers()){
+            this.onQuit(player,false);
+            player.setGamemode(0);
+            player.getInventory().clearAll();
+        }
     }
 
     void onWin(int id) {
@@ -138,14 +147,19 @@ public class BedWars {
             player.sendMessage(DEFAULT_TITLE + "§6恭喜你,获得了最后的胜利");
             //player.sendMessage(DEFAULT_TITLE + "§6丰厚的奖励已经赠送");
             player.sendMessage(DEFAULT_TITLE + "§5***************");
+            player.sendTitle("You WIN!!!");
             player.setSpawn(Server.getInstance().getDefaultLevel().getSafeSpawn());
             player.teleport(this.data.getStopLocation());
+            player.getInventory().clearAll();
+            this.onQuit(player,false);
         }
+        SBedWarsAPI.getInstance().broadcastTitle(getAllPlayers(),0, 30, 0,"", TextFormat.colorize("&6队伍 &e"+ rooms.get(this.id).getTeamData().get(id).get("name") + " &b获得了胜利!"));
         this.onStop();
     }
 
     void onDraw() {
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), DEFAULT_TITLE + "平局!");
+        SBedWarsAPI.getInstance().broadcastTitle(getAllPlayers(),0, 30, 0,"", TextFormat.colorize("&6平局!"));
         this.onStop();
     }
 
@@ -219,6 +233,12 @@ public class BedWars {
         this.getAlivePlayers().remove(player);
         this.getAllPlayers().remove(player);
         this.getSpectatorPlayers().remove(player);
+        try {
+            ArrayList<String> map = teams.get(this.getTeam(player.getName()));
+            map.remove(player.getName());
+            this.teams.put(this.getTeam(player.getName()),map);
+        }catch (NullPointerException e){
+        }
     }
 
     public int getGameMode() {
@@ -394,28 +414,27 @@ class GameTask extends PluginTask<SBedWars> {
     public void onRun(int currentTick) {
         this.tick++;
         this.gameTick--;
-        if (game.getAlivePlayers().size() < data.getMin()) {
-            game.onStop();
-            this.cancel();
-            return;
-        }
         this.checkTeam();
         //TODO:观战
         if (this.tick % data.getGoldDropSpeed() == 0) {
             for (Location location : data.getGoldLocation()) {
                 location.level.dropItem(location, gold);
+                location.level.setTime(1000);
             }
         }
         if (this.tick % data.getSilverDropSpeed() == 0) {
             for (Location location : data.getSilverLocation()) {
                 location.level.dropItem(location, silver);
+                location.level.setTime(1000);
             }
         }
         if (this.tick % data.getCopperDropSpeed() == 0) {
             for (Location location : data.getCopperLocation()) {
                 location.level.dropItem(location, copper);
+                location.level.setTime(1000);
             }
         }
+
         switch (this.gameTick) {
             case 10:
             case 9:
@@ -458,20 +477,20 @@ class GameTask extends PluginTask<SBedWars> {
 
     private void checkTeam() {
         HashMap<Integer, Integer> map = game.getTeamSize();
-        Collection<Integer> c = map.values();
-        Object[] obj = c.toArray();
-        Arrays.sort(obj);
-        int max = Integer.valueOf(obj[obj.length - 1].toString());
-        int count = 0;
-        for (Object o : obj) {
-            int size = Integer.valueOf(o.toString());
-            if (size == max) count++;
-        }
-        if (count == 1) {
-            for (Integer id : map.keySet()) {
-                if (map.get(id) == max) game.onWin(id);
+        int i = 0;
+        int team = -1;
+        for (Map.Entry<Integer,Integer> entry: map.entrySet()) {
+            if(entry.getValue() == 0){
+                i++;
+            }else{
+                team = entry.getKey();
             }
-            this.cancel();
+        }
+        if(i == map.size()-1){
+            if(team != -1){
+                game.onWin(team);
+                this.cancel();
+            }
         }
     }
 }

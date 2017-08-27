@@ -7,10 +7,13 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemClay;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.sound.AnvilFallSound;
+import cn.nukkit.utils.TextFormat;
 import net.mcpes.summit.hhm.bedwars.SBedWarsAPI;
 import net.mcpes.summit.hhm.bedwars.data.RoomData;
 import net.mcpes.summit.hhm.bedwars.game.BedWars;
@@ -33,6 +36,12 @@ public class PlayerListener implements Listener {
             //TODO:bag
             games.get(id).onQuit(event.getPlayer(), false);
         }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onJoin(PlayerJoinEvent event) {
+        event.getPlayer().setCheckMovement(false);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -43,7 +52,15 @@ public class PlayerListener implements Listener {
             if (event.getMessage().substring(0, 1).equals("!")) {
                 SBedWarsAPI.getInstance().broadcastSpeak(games.get(id).getAllPlayers(), event.getPlayer().getName(), event.getMessage().substring(1, event.getMessage().length()));
             } else {
-                SBedWarsAPI.getInstance().broadcastTeamSpeak(games.get(id).getTeam(games.get(id).getTeam(event.getPlayer().getName())), event.getPlayer().getName(), event.getMessage());
+                try {
+                    if(event.getMessage().contains("@")){
+                        SBedWarsAPI.getInstance().broadcastMessage3(games.get(id).getAllPlayers(),event.getMessage(),event.getPlayer());
+                        return;
+                    }
+                    SBedWarsAPI.getInstance().broadcastTeamSpeak(games.get(id).getTeam(games.get(id).getTeam(event.getPlayer().getName())), event.getPlayer().getName(), event.getMessage());
+                }catch (NullPointerException e){
+                    SBedWarsAPI.getInstance().broadcastMessage2(games.get(id).getAllPlayers(),event.getMessage(),event.getPlayer());
+                }
             }
         }
     }
@@ -63,6 +80,10 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onImmuneDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
+            if(event.getDamager().getLevel().getFolderName().equals("lobby")){
+                event.setCancelled();
+                return;
+            }
             Player entity = (Player) event.getEntity();//防御者
             Player damager = (Player) event.getDamager();
             int a = SBedWarsAPI.getInstance().isPlayerGaming(entity.getName());
@@ -145,7 +166,7 @@ public class PlayerListener implements Listener {
         for (Integer teamID : rooms.get(room).getTeamData().keySet()) {
             Location block = event.getBlock().getLocation();
             Location core = (Location) rooms.get(room).getTeamData().get(teamID).get("bedLocation");
-            String pos1 = (int) block.x + ":" + ((int) block.y - 1) + ":" + (int) block.z + ":" + block.level.getName();
+            String pos1 = (int) block.x + ":" + ((int) block.y) + ":" + (int) block.z + ":" + block.level.getName();
             String pos2 = (int) core.x + ":" + (int) core.y + ":" + (int) core.z + ":" + core.level.getName();
             if (pos1.equals(pos2)) {
                 coreTeam = teamID;
@@ -159,6 +180,8 @@ public class PlayerListener implements Listener {
         }
         if (coreTeam != -1) {
             rooms.get(room).getTeamData().get(coreTeam).put("kill", true);
+            event.setDrops(null);
+            SBedWarsAPI.getInstance().broadcastTitle(games.get(room).getAllPlayers(), 0, 50 , 0, "", TextFormat.colorize("&a队伍: &d" + rooms.get(room).getTeamData().get(playerTeam).get("name") + "&b的核心被破坏"));
             SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "队伍:" + rooms.get(room).getTeamData().get(playerTeam).get("name") + "的核心被破坏,此队伍将不可重生");
         }
     }
@@ -177,6 +200,13 @@ public class PlayerListener implements Listener {
         if (playerTeam == chestTeam) return;
         SBedWarsAPI.getInstance().broadcastTeamMessage(games.get(room).teams.get(chestTeam), "基地的陷阱箱被破坏了,是不是有人在偷城?请回去查看!");
     }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onCraft(CraftItemEvent event){
+        int room = SBedWarsAPI.getInstance().isPlayerGaming(event.getPlayer().getName());
+        if (room <= 0) return;
+        if (games.get(room).getGameMode() != 3) return;
+        event.getPlayer().getLevel().addSound(new AnvilFallSound(event.getPlayer()));
+    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onDie(PlayerDeathEvent event) {
@@ -185,23 +215,30 @@ public class PlayerListener implements Listener {
         if (room <= 0) return;
         if (games.get(room).getGameMode() != 3) return;
         if (event.getEntity().getKiller() != null) {
-            SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "玩家" + name + "被" + event.getEntity().getKiller() + "杀死了");
+            event.getEntity().getKiller().getLevel().addSound(new AnvilFallSound(event.getEntity().getKiller()));
+            SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "玩家" + name + "被" + event.getEntity().getKiller().getName() + "杀死了");
         } else {
             SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "玩家" + name + "死了");
         }
         int playerTeam = games.get(room).getTeam(event.getEntity().getName());
         HashMap<String, Object> teamData = rooms.get(room).getTeamData().get(playerTeam);
         if (teamData.containsKey("kill") && (boolean) teamData.get("kill")) {
+            SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "最终击杀！");
             event.getEntity().sendMessage(DEFAULT_TITLE + "你的队伍核心不在,你不能够重生!");
-            for (Item item : event.getDrops()) {
-                event.getEntity().level.dropItem(event.getEntity().getLocation(), item);
-            }
+            event.getEntity().getInventory().clearAll();
             event.setCancelled(true);
             games.get(room).onQuit(event.getEntity(), true);
         } else {
             event.getEntity().sendMessage(DEFAULT_TITLE + "重生!");
             event.setKeepInventory(false);
+            event.getEntity().getInventory().clearAll();
         }
+        for (Item item : event.getDrops()) {
+            if(item.getId() == 265 || item.getId() == 266 || item.getId() == 336) {
+                event.getEntity().level.dropItem(event.getEntity().getLocation(), item);
+            }
+        }
+        event.setDrops(new Item[]{});
     }
 
     @EventHandler

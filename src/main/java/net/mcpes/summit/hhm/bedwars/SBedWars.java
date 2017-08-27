@@ -15,6 +15,7 @@ import cn.nukkit.level.sound.ButtonClickSound;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.CraftingDataPacket;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.TextFormat;
 import net.mcpes.summit.hhm.bedwars.command.BedWarsCommand;
 import net.mcpes.summit.hhm.bedwars.config.RoomConfig;
 import net.mcpes.summit.hhm.bedwars.data.RoomData;
@@ -230,6 +231,24 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
+    public void broadcastMessage2(ArrayList<Player> p, String msg,Player player) {
+        for (Player pl : p) {
+            if (pl.isOnline()) {
+                pl.sendMessage(DEFAULT_TITLE + " "+player.getName() + " >> " +msg);
+            }
+        }
+    }
+
+    @Override
+    public void broadcastMessage3(ArrayList<Player> p, String msg,Player player) {
+        for (Player pl : p) {
+            if (pl.isOnline()) {
+                pl.sendMessage(DEFAULT_TITLE + TextFormat.colorize("&e大喊 &6>> &d队伍: &b"+rooms.get(SBedWarsAPI.getInstance().isPlayerGaming(player.getName())).getTeamData().get(games.get(SBedWarsAPI.getInstance().isPlayerGaming(player.getName())).getTeam(player.getName())).get("name")+" &e&l"+player.getName() + " &6>> &4" +msg));
+            }
+        }
+    }
+
+    @Override
     public void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg) {
         for (Player pl : p) {
             if (pl.isOnline()) {
@@ -387,14 +406,14 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         bedWarsComposes.add(new BigShapedRecipe(
                 woodStick, "CXC", "CCC", "CCC"
         ).setIngredient("C", copper).setIngredient("X", Item.get(0)));//木棍击退1 伤害2
-        Item silverStick = Item.get(369, 0, 1);
-        silverStick.setCustomName(DEFAULT_TITLE + "§f烈焰棒");
+        Item silverStick = Item.get(280, 0, 1);
+        silverStick.setCustomName(DEFAULT_TITLE + "§f棍子(加强版)");
         Enchantment silverStickEnchant = Enchantment.get(19);
         silverStickEnchant.setLevel(3);
         silverStick.addEnchantment(silverStickEnchant);
         silverStick.setDamage(4);
         bedWarsComposes.add(new BigShapedRecipe(
-                silverStick, "SXS", "SSS", "XXX"
+                silverStick, "XSX", "SSS", "SSS"
         ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//烈焰棒击退3 伤害4
         Item goHome = Item.get(337, 0, 1);
         goHome.setCustomBlockData(new CompoundTag().putString("bedWars", "goHome"));
@@ -448,19 +467,19 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         ironBoots.setCustomName(DEFAULT_TITLE + "§f铁鞋-与铁头盔一起穿戴可防御击退");
         ironBoots.setCustomBlockData(new CompoundTag().putString("bedWars", "ironBoots"));
         bedWarsComposes.add(new BigShapedRecipe(
-                ironBoots, "SSX", "SSX", "SSG"
+                ironBoots, "SXS", "GSG", "GSG"
         ).setIngredient("G", gold).setIngredient("X", Item.get(0)).setIngredient("G", gold));//铁鞋
         Item ironHelmet = Item.get(Item.IRON_HELMET, 0, 1);
         ironHelmet.setCustomName(DEFAULT_TITLE + "§f铁头盔-与铁鞋一起穿戴可防御击退");
         ironHelmet.setCompoundTag(new CompoundTag().putString("bedWars", "ironHelmet"));
         bedWarsComposes.add(new BigShapedRecipe(
-                ironBoots, "SXS", "SSX", "SSG"
+                ironHelmet, "GGG", "GXG", "SSS"
         ).setIngredient("G", gold).setIngredient("X", Item.get(0)).setIngredient("G", gold));//铁鞋
         Item chainChestPlate = Item.get(Item.CHAIN_CHESTPLATE, 0, 1);
         chainChestPlate.setCompoundTag(new CompoundTag().putString("bedWars", "chainChestPlate"));
         chainChestPlate.setCustomName(DEFAULT_TITLE + "§f锁链甲");
         bedWarsComposes.add(new BigShapedRecipe(
-                chainChestPlate, "XSX", "SXS", "XXX"
+                chainChestPlate, "SXS", "SSS", "SSS"
         ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//锁链甲
         Item chest = Item.get(Item.CHEST, 0, 1);
         chest.setCustomName(DEFAULT_TITLE + "§f箱子");
@@ -476,38 +495,38 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         Item effectHealth45 = Item.get(Item.POTION, ItemPotion.REGENERATION, 1);
         effectHealth45.setCustomName(DEFAULT_TITLE + "§f生命恢复 45秒");
         bedWarsComposes.add(new BigShapedRecipe(
-                effectHealth45, "XGG", "XXX", "XXX"
+                effectHealth45, "GGG", "XGX", "XXX"
         ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//生命恢复45s
         Item effectHealth120 = Item.get(Item.POTION, ItemPotion.REGENERATION_LONG, 1);
         effectHealth120.setCustomName(DEFAULT_TITLE + "§f生命恢复 120秒");
         bedWarsComposes.add(new BigShapedRecipe(
-                effectHealth120, "GGG", "XXX", "XXX"
+                effectHealth120, "GGG", "GGG", "XXX"
         ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//生命恢复120s
         Item effectSpeed180 = Item.get(Item.POTION, ItemPotion.SPEED_LONG, 1);
         effectSpeed180.setCustomName(DEFAULT_TITLE + "§f速度 180秒");
         bedWarsComposes.add(new BigShapedRecipe(
-                effectSpeed180, "SSS", "XXX", "XSS"
-        ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//速度3m
+                effectSpeed180, "SSS", "GGG", "SXS"
+        ).setIngredient("S", silver).setIngredient("X", Item.get(0)).setIngredient("G",gold));//速度3m
         Item goldSword = Item.get(Item.GOLD_SWORD, 0, 1);
         Item ironSword = Item.get(Item.IRON_SWORD, 0, 1);
         goldSword.setCustomName(DEFAULT_TITLE + "§f金剑");
         ironSword.setCustomName(DEFAULT_TITLE + "§f铁剑");
         bedWarsComposes.add(new BigShapedRecipe(
-                goldSword, "SSX", "XSX", "XXX"
-        ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//金剑
+                goldSword, "XGX", "GGG", "XGX"
+        ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//金剑
         bedWarsComposes.add(new BigShapedRecipe(
-                ironSword, "GGX", "XGX", "XXX"
-        ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//铁剑
+                ironSword, "XGX", "GGG", "XGX"
+        ).setIngredient("G", silver).setIngredient("X", Item.get(0)));//铁剑
         Item steak = Item.get(Item.STEAK, 0, 1);
         steak.setCustomName(DEFAULT_TITLE + "§f熟牛肉");
         bedWarsComposes.add(new BigShapedRecipe(
-                ironSword, "CXX", "XCX", "XXC"
+                steak, "CXX", "XCX", "XXC"
         ).setIngredient("C", copper).setIngredient("X", Item.get(0)));//牛肉
         Item goldenApple = Item.get(Item.GOLDEN_APPLE);
         goldenApple.setCustomName(DEFAULT_TITLE + "§f金苹果");
         bedWarsComposes.add(new BigShapedRecipe(
-                goldenApple, "XXS", "XXX", "XXX"
-        ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//金苹果
+                goldenApple, "SSS", "SXS", "SSS"
+        ).setIngredient("S", gold).setIngredient("X", Item.get(0)));//金苹果
         Item goldPickAxe = Item.get(Item.GOLD_PICKAXE, 0, 1);
         goldPickAxe.setCustomName(DEFAULT_TITLE + "§f金镐");
         Item ironPickAxe = Item.get(Item.IRON_PICKAXE, 0, 1);
@@ -515,13 +534,13 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
         Item stonePickAxe = Item.get(Item.STONE_PICKAXE, 0, 1);
         stonePickAxe.setCustomName(DEFAULT_TITLE + "§f石镐");
         bedWarsComposes.add(new BigShapedRecipe(
-                stonePickAxe, "CCC", "XXX", "XXC"
+                stonePickAxe, "CCC", "XCX", "XCX"
         ).setIngredient("C", copper).setIngredient("X", Item.get(0)));//石镐
         bedWarsComposes.add(new BigShapedRecipe(
-                ironPickAxe, "XXS", "XSS", "XXX"
+                ironPickAxe, "SSS", "XSX", "XSX"
         ).setIngredient("S", silver).setIngredient("X", Item.get(0)));//铁镐
         bedWarsComposes.add(new BigShapedRecipe(
-                goldSword, "XXG", "GXX", "XXX"
+                goldSword, "GGG", "XGX", "XGX"
         ).setIngredient("G", gold).setIngredient("X", Item.get(0)));//金镐
         {
             Item cap = Item.get(Item.LEATHER_CAP, 0, 1);
@@ -533,16 +552,16 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
             Item boots = Item.get(Item.LEATHER_BOOTS, 0, 1);
             boots.setCustomName(DEFAULT_TITLE + "§f皮革鞋");
             bedWarsComposes.add(new BigShapedRecipe(
-                    cap, "XXX", "XXX", "XXC"
+                    cap, "CCC", "CXC", "XXX"
             ).setIngredient("C", copper).setIngredient("X", Item.get(0)));
             bedWarsComposes.add(new BigShapedRecipe(
-                    tunic, "XXX", "XXX", "XCX"
+                    tunic, "CXC", "CCC", "CCC"
             ).setIngredient("C", copper).setIngredient("X", Item.get(0)));
             bedWarsComposes.add(new BigShapedRecipe(
-                    pants, "XXX", "XXC", "XXX"
+                    pants, "CCC", "CXC", "CXC"
             ).setIngredient("C", copper).setIngredient("X", Item.get(0)));
             bedWarsComposes.add(new BigShapedRecipe(
-                    boots, "XXC", "XXX", "XXX"
+                    boots, "XXX", "CXC", "CXC"
             ).setIngredient("C", copper).setIngredient("X", Item.get(0)));
         }
         craftingDataPacket.cleanRecipes = true;
