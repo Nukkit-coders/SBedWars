@@ -1,6 +1,9 @@
 name: SBedWars
-version: "0.1.0"
+version: "0.1.0 TEST"
 api: ["1.0.0"]
 author: hhm
 description: "开源的起床战争小游戏.jpg"
 main: net.mcpes.summit.hhm.bedwars.SBedWars
+permission:
+  sworld.command.admin:
+    default: op
