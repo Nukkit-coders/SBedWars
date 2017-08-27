@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static final String DEFAULT_TITLE = "§l§e[§6S§eB§de§3d§6W§aa§4r§5s§e] §6";
-    public static final String VERSION = "1.0.0 TEST";
+    public static final String VERSION = "0.1.0 TEST";
     public static final String GAMESTATUS_WAIT = "§6等待加入";
     public static final String GAMESTATUS_SOON = "§6即将开始";
     public static final String GAMESTATUS_START = "§6游戏开始";
