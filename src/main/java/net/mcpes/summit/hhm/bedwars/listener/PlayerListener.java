@@ -14,8 +14,8 @@ import cn.nukkit.item.ItemClay;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.sound.AnvilFallSound;
 import cn.nukkit.utils.TextFormat;
+import net.mcpes.summit.hhm.bedwars.SBedWars;
 import net.mcpes.summit.hhm.bedwars.SBedWarsAPI;
-import net.mcpes.summit.hhm.bedwars.data.RoomData;
 import net.mcpes.summit.hhm.bedwars.game.BedWars;
 
 import java.util.HashMap;
@@ -110,33 +110,6 @@ public class PlayerListener implements Listener {
                 if ((!event.getMessage().substring(0, 4).equals("/bw "))) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(DEFAULT_TITLE + "§6游戏内不允许使用/bw 之外的其他所有命令");
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
-    public void onItemHeld(PlayerItemHeldEvent event) {
-        String n = event.getPlayer().getName();
-        int i = SBedWarsAPI.getInstance().isPlayerGaming(n);
-        int id = event.getItem().getId();
-        if (id != 265 && id != 266 && id != 336) return;
-        if (i != -1) {
-            BedWars bedWars = games.get(i);
-            if (bedWars.getGameMode() == 3) {
-                RoomData data = rooms.get(i);
-                if (data.getResourcesType() != 2) return;
-                event.setCancelled(true);
-                switch (id) {
-                    case 265:
-                        event.getPlayer().addExperience(data.getSilverToExp());
-                        break;
-                    case 266:
-                        event.getPlayer().addExperience(data.getGoldToExp());
-                        break;
-                    case 336:
-                        event.getPlayer().addExperience(data.getCopperToExp());
-                        break;
                 }
             }
         }
@@ -251,5 +224,20 @@ public class PlayerListener implements Listener {
         if (helmet.getCustomBlockData().contains("bedWars") && helmet.getCustomBlockData().getString("bedWars").equals("ironHelmet") && boots.getCustomBlockData().contains("bedWars") && boots.getCustomBlockData().getString("bedWars").equals("ironBoots")) {
             event.setKnockBack(0);
         }
+    }
+
+    @EventHandler
+    public void onPick(PlayerItemHeldEvent event) {
+        int room = SBedWarsAPI.getInstance().isPlayerGaming(event.getPlayer().getName());
+        if (room != -1) {
+            boolean flag = false;
+            for (Item item : SBedWars.showItem) {
+                if (event.getItem() == item) flag = true;
+            }
+            if (flag) {
+                event.setCancelled(true);
+            }
+        }
+
     }
 }

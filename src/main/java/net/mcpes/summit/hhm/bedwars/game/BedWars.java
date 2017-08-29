@@ -6,14 +6,13 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockSignPost;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
-import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.level.particle.FloatingTextParticle;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.utils.TextFormat;
 import net.mcpes.summit.hhm.bedwars.SBedWars;
 import net.mcpes.summit.hhm.bedwars.SBedWarsAPI;
 import net.mcpes.summit.hhm.bedwars.data.RoomData;
+import net.mcpes.summit.hhm.bedwars.utils.FloatingTextPacket;
 
 import java.io.IOException;
 import java.util.*;
@@ -66,24 +65,24 @@ public class BedWars {
                 this.resetSign();
                 SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§7<§b" + player.getName() + "§7> §6加入了房间! (" + this.getAllPlayers().size() + "/" + data.getMax() + ")");
                 player.teleport(data.getWaitLocation());
-                player.sendMessage(DEFAULT_TITLE + "§4已经保存背包物品");
+                player.sendMessage("§4已经保存背包物品");
                 //TODO: save bag and config
                 this.giveBag(player);
                 player.dataPacket(craftingDataPacket);
-                player.sendMessage(DEFAULT_TITLE + "§6已经更换了您的背包,可在游戏结束后输入/sw bag拿回物品(关服重启之前,如果在关服重启之后,神器,附魔等高级物品将消失掉原本效果)");
+                player.sendMessage("§6已经更换了您的背包,可在游戏结束后输入/sw bag拿回物品(关服重启之前,如果在关服重启之后,神器,附魔等高级物品将消失掉原本效果)");
                 player.setGamemode(0);
                 player.getInventory().clearAll();
-                player.sendMessage(DEFAULT_TITLE + "§7已经更换为生存模式!");
+                player.sendMessage("§7已经更换为生存模式!");
                 if (this.getAllPlayers().size() == data.getMin()) {
                     this.setGameMode(2);
                     Server.getInstance().getScheduler().scheduleRepeatingTask(new WaitTask(this.data, this), 20);
                 }
-                player.sendMessage(DEFAULT_TITLE + "成功加入" + id + "号房间");
+                player.sendMessage("成功加入" + id + "号房间");
             } else {
-                player.sendMessage(DEFAULT_TITLE + "房间当前状态无法加入");
+                player.sendMessage("房间当前状态无法加入");
             }
         } else {
-            player.sendMessage(DEFAULT_TITLE + "房间人数达到最大值,无法加入");
+            player.sendMessage("房间人数达到最大值,无法加入");
         }
     }
 
@@ -99,9 +98,9 @@ public class BedWars {
             player.getInventory().clearAll();
             player.setSpawn(Server.getInstance().getDefaultLevel().getSafeSpawn());
             player.teleport(this.data.getStopLocation());
-            player.sendMessage(DEFAULT_TITLE + "§7你已退出游戏房间");
-            player.sendMessage(DEFAULT_TITLE + "§7已经将您传送到游戏结束区域");
-            player.sendMessage(DEFAULT_TITLE + "§4已经为您自动恢复背包物品");
+            player.sendMessage("§7你已退出游戏房间");
+            player.sendMessage("§7已经将您传送到游戏结束区域");
+            player.sendMessage("§4已经为您自动恢复背包物品");
         }
     }
 
@@ -121,7 +120,7 @@ public class BedWars {
             pos.level.setBlock(pos, Block.get(58));
         }
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§l§7-------------------");
-        SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), DEFAULT_TITLE + "§2Game Starts!");
+        SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§2Game Starts!");
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§l§7-------------------");
         this.setGameMode(3);
         this.resetSign();
@@ -129,7 +128,7 @@ public class BedWars {
     }
 
     void onStop() {
-        SBedWars.getInstance().getServer().getLogger().info(DEFAULT_TITLE + this.id + "号房间已经停止游戏");
+        SBedWars.getInstance().getServer().getLogger().info(this.id + "号房间已经停止游戏");
         this.setGameMode(4);
         this.resetSign();
         this.resetRoom();
@@ -143,10 +142,10 @@ public class BedWars {
     void onWin(int id) {
         for (String name : this.teams.get(id)) {
             Player player = Server.getInstance().getPlayerExact(name);
-            player.sendMessage(DEFAULT_TITLE + "§5***************");
-            player.sendMessage(DEFAULT_TITLE + "§6恭喜你,获得了最后的胜利");
-            //player.sendMessage(DEFAULT_TITLE + "§6丰厚的奖励已经赠送");
-            player.sendMessage(DEFAULT_TITLE + "§5***************");
+            player.sendMessage("§5***************");
+            player.sendMessage("§6恭喜你,获得了最后的胜利");
+            //player.sendMessage("§6丰厚的奖励已经赠送");
+            player.sendMessage("§5***************");
             player.sendTitle("You WIN!!!");
             player.setSpawn(Server.getInstance().getDefaultLevel().getSafeSpawn());
             player.teleport(this.data.getStopLocation());
@@ -158,7 +157,7 @@ public class BedWars {
     }
 
     void onDraw() {
-        SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), DEFAULT_TITLE + "平局!");
+        SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "平局!");
         SBedWarsAPI.getInstance().broadcastTitle(getAllPlayers(),0, 30, 0,"", TextFormat.colorize("&6平局!"));
         this.onStop();
     }
@@ -166,7 +165,7 @@ public class BedWars {
     private void resetRoom() {
         this.setGameMode(5);
         this.resetSign();
-        Server.getInstance().getLogger().info(DEFAULT_TITLE + "§5正在重载" + this.id + "号房间");
+        Server.getInstance().getLogger().info("§5正在重载" + this.id + "号房间");
         try {
             SBedWarsAPI.getInstance().loadWorld(this.data.getGameWorld());
         } catch (IOException e) {
@@ -174,7 +173,7 @@ public class BedWars {
         }
         this.init();
         this.resetSign();
-        Server.getInstance().getLogger().info(DEFAULT_TITLE + "§6重载" + this.id + "号房间成功！");
+        Server.getInstance().getLogger().info("§6重载" + this.id + "号房间成功！");
     }
 
     private void giveBag(Player player) {
@@ -292,7 +291,7 @@ public class BedWars {
         for (String player : notHasTeamPlayers) {
             int id = this.getMinId(this.getTeamSize());
             this.choiceTeam(id, player);
-            Server.getInstance().getPlayerExact(player).sendMessage(DEFAULT_TITLE + "你没有选择队伍,系统已自动帮你选择队伍为" + this.data.getTeamData().get(id).get("name"));
+            Server.getInstance().getPlayerExact(player).sendMessage("你没有选择队伍,系统已自动帮你选择队伍为" + this.data.getTeamData().get(id).get("name"));
         }
     }
 
@@ -342,7 +341,7 @@ class WaitTask extends PluginTask<SBedWars> {
         }
         switch (this.waitTick) {
             default:
-                SBedWarsAPI.getInstance().broadcastTip(this.game.getAllPlayers(), DEFAULT_TITLE + "§6距离游戏开始还有" + waitTick + "秒");
+                SBedWarsAPI.getInstance().broadcastTip(this.game.getAllPlayers(), "§6距离游戏开始还有" + waitTick + "秒");
                 break;
             case 10:
                 SBedWarsAPI.getInstance().broadcastTitle(this.game.getAllPlayers(), 0, 20, 0, DEFAULT_TITLE, "§l§210");
@@ -402,12 +401,35 @@ class GameTask extends PluginTask<SBedWars> {
     private RoomData data;
     private BedWars game;
     private int tick;
+    private int gold;
+    private int silver;
+    private int diamond;
+    private int emerald;
+    private int levelUp;
+    private int emeraldLevel;
+    private int diamondLevel;
+    private ArrayList<Long> diamondEid;
+    private ArrayList<Long> emeraldEid;
 
     GameTask(RoomData data, BedWars game) {
         super(SBedWars.getInstance());
         this.data = data;
         this.game = game;
         this.gameTick = data.getGameTime();
+        this.gold = 9 / data.getMax();
+        this.silver = 3 / data.getMax();
+        this.diamond = 30;
+        this.emerald = 60;
+        this.emeraldLevel = 1;
+        this.diamondLevel = 1;
+        this.diamondEid = new ArrayList<>();
+        this.emeraldEid = new ArrayList<>();
+        data.getDiamondLocation().forEach((Location pos) -> {
+            data.getGameLevel().dropItem(pos.add(0, 3, 0), SBedWars.showItem[2], null, true, 10);
+        });
+        data.getEmeraldLocation().forEach((Location pos) -> {
+            data.getGameLevel().dropItem(pos.add(0, 3, 0), SBedWars.showItem[3], null, true, 10);
+        });
     }
 
     @Override
@@ -415,26 +437,38 @@ class GameTask extends PluginTask<SBedWars> {
         this.tick++;
         this.gameTick--;
         this.checkTeam();
-        //TODO:观战
-        if (this.tick % data.getGoldDropSpeed() == 0) {
+        if (this.tick % gold == 0) {
             for (Location location : data.getGoldLocation()) {
-                location.level.dropItem(location, gold);
-                location.level.setTime(1000);
+                location.level.dropItem(location, SBedWars.gold);
             }
         }
-        if (this.tick % data.getSilverDropSpeed() == 0) {
+        if (this.tick % silver == 0) {
             for (Location location : data.getSilverLocation()) {
-                location.level.dropItem(location, silver);
-                location.level.setTime(1000);
+                location.level.dropItem(location, SBedWars.silver);
             }
         }
-        if (this.tick % data.getCopperDropSpeed() == 0) {
-            for (Location location : data.getCopperLocation()) {
-                location.level.dropItem(location, copper);
-                location.level.setTime(1000);
+        if (this.tick % diamond == 0) {
+            for (Location location : data.getDiamondLocation()) {
+                location.level.dropItem(location, SBedWars.diamond);
+                this.updateFloatingText(3);
             }
         }
-
+        if (this.tick % emerald == 0) {
+            for (Location location : data.getEmeraldLocation()) {
+                location.level.dropItem(location, SBedWars.emerald);
+                this.updateFloatingText(4);
+            }
+        }
+        if (this.tick % 180 == 0) {
+            if (levelUp <= 6) {
+                this.levelUp++;
+                if (this.levelUp % 2 == 0) {
+                    emeraldLevel++;
+                } else {
+                    diamondLevel++;
+                }
+            }
+        }
         switch (this.gameTick) {
             case 10:
             case 9:
@@ -443,28 +477,28 @@ class GameTask extends PluginTask<SBedWars> {
             case 6:
             case 5:
             case 4:
-                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), DEFAULT_TITLE + "距离游戏结束还有" + this.gameTick + "秒");
+                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "距离游戏结束还有" + this.gameTick + "秒");
                 SBedWarsAPI.getInstance().broadcastSound(game.getAllPlayers(), 1);
                 break;
             case 3:
-                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), DEFAULT_TITLE + "距离游戏结束还有" + this.gameTick + "秒");
+                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "距离游戏结束还有" + this.gameTick + "秒");
                 SBedWarsAPI.getInstance().broadcastTitle(game.getAllPlayers(), 0, 20, 0, "§l§b3", null);
                 SBedWarsAPI.getInstance().broadcastSound(game.getAllPlayers(), 1);
                 break;
             case 2:
-                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), DEFAULT_TITLE + "距离游戏结束还有" + this.gameTick + "秒");
+                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "距离游戏结束还有" + this.gameTick + "秒");
                 SBedWarsAPI.getInstance().broadcastTitle(game.getAllPlayers(), 0, 20, 0, "§l§e2", null);
                 SBedWarsAPI.getInstance().broadcastSound(game.getAllPlayers(), 1);
                 break;
             case 1:
-                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), DEFAULT_TITLE + "距离游戏结束还有" + this.gameTick + "秒");
+                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "距离游戏结束还有" + this.gameTick + "秒");
                 SBedWarsAPI.getInstance().broadcastTitle(game.getAllPlayers(), 0, 20, 0, "§l§d1", null);
                 SBedWarsAPI.getInstance().broadcastSound(game.getAllPlayers(), 1);
                 break;
             case 0:
                 SBedWarsAPI.getInstance().broadcastTitle(game.getAllPlayers(), 0, 20, 0, DEFAULT_TITLE, "§l§c游戏结束!");
                 SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "§l§7-------------------");
-                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), DEFAULT_TITLE + "§l§cGame Stops!");
+                SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "§l§cGame Stops!");
                 SBedWarsAPI.getInstance().broadcastMessage(game.getAllPlayers(), "§l§7-------------------");
                 SBedWarsAPI.getInstance().broadcastSound(game.getAllPlayers(), 2);
                 break;
@@ -491,6 +525,36 @@ class GameTask extends PluginTask<SBedWars> {
                 game.onWin(team);
                 this.cancel();
             }
+        }
+    }
+
+    private void updateFloatingText(int type) {
+        switch (type) {
+            case 3: {
+                //diamond
+                if (this.diamondEid.size() == 0) {
+                    for (Location pos : data.getDiamondLocation()) {
+                        this.diamondEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + this.tick % diamond + "§a秒后产出", pos.add(0, 3.5, 0)));
+                    }
+                } else {
+                    for (Long eid : this.diamondEid) {
+                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + this.tick % diamond + "§a秒后产出");
+                    }
+                }
+            }
+            break;
+            case 4: {
+                if (this.emeraldEid.size() == 0) {
+                    for (Location pos : data.getDiamondLocation()) {
+                        this.emeraldEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + this.tick % emerald + "§a秒后产出", pos.add(0, 3.5, 0)));
+                    }
+                } else {
+                    for (Long eid : this.emeraldEid) {
+                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + this.tick % emerald + "§a秒后产出");
+                    }
+                }
+            }
+            break;
         }
     }
 }

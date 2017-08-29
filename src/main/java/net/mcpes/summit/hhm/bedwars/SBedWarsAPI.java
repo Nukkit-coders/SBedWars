@@ -54,6 +54,4 @@ public interface SBedWarsAPI {
     void resetSign(int id, Location pos);
 
     void delSign(String pos, int id);
-
-    void registerComposes();
 }

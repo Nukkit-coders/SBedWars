@@ -16,8 +16,6 @@ import static net.mcpes.summit.hhm.bedwars.SBedWars.DEFAULT_TITLE;
  */
 
 public class RoomData {
-    private int resourcesType = 1;//1:金银铜，2:经验
-    private int shopType = 1;//1:工作台,2:箱子
     private int id = 0;//房间id
     private int min = 4;//最小游戏人数
     private int max = 20;//最大游戏人数
@@ -34,18 +32,14 @@ public class RoomData {
     private Level gameLevel = null;//游戏世界
     private HashMap<Integer, HashMap<String, Object>> teamData = new HashMap<>();//队伍信息，包括disName,bedPos,gamePos,shopPos
     private int voidKill = 0;//当玩家y值低于此将自动击杀
-    private int goldDropSpeed = 20;//金掉落速度
-    private int silverDropSpeed = 5;//银掉落速度
-    private int copperDropSpeed = 1;//铜掉落速度
     private ArrayList<Location> goldLocation = new ArrayList<>();//金掉落地点-Location
     private ArrayList<Location> silverLocation = new ArrayList<>();//银掉落地点-Location
-    private ArrayList<Location> copperLocation = new ArrayList<>();//铜掉落地点-Location
+    private ArrayList<Location> emeraldLocation = new ArrayList<>();//绿宝石掉落地点-Location
+    private ArrayList<Location> diamondLocation = new ArrayList<>();//钻石掉落地点-Location
     private ArrayList<String> goldPos = new ArrayList<>();//金掉落地点-Location
     private ArrayList<String> silverPos = new ArrayList<>();//银掉落地点-Location
-    private ArrayList<String> copperPos = new ArrayList<>();//铜掉落地点-Location
-    private int goldToExp = 15;//金转换经验等级
-    private int silverToExp = 5;//银转换经验等级
-    private int copperToExp = 1;//铜转换经验等级
+    private ArrayList<String> emeraldPos = new ArrayList<>();//绿宝石掉落地点-LocationLocation
+    private ArrayList<String> diamondPos = new ArrayList<>();//钻石掉落地点-Location
     private int set = 0;//设置步骤,设置房间用
     private int teamCount = 0;//队伍数量,设置房间用
     private int canTeam = 0;
@@ -56,22 +50,6 @@ public class RoomData {
 
     public int getId() {
         return id;
-    }
-
-    public int getResourcesType() {
-        return resourcesType;
-    }
-
-    public void setResourcesType(int resourcesType) {
-        this.resourcesType = resourcesType;
-    }
-
-    public int getShopType() {
-        return shopType;
-    }
-
-    public void setShopType(int shopType) {
-        this.shopType = shopType;
     }
 
     public int getMin() {
@@ -211,30 +189,6 @@ public class RoomData {
         this.voidKill = voidKill;
     }
 
-    public int getGoldDropSpeed() {
-        return goldDropSpeed;
-    }
-
-    public void setGoldDropSpeed(int goldDropSpeed) {
-        this.goldDropSpeed = goldDropSpeed;
-    }
-
-    public int getSilverDropSpeed() {
-        return silverDropSpeed;
-    }
-
-    public void setSilverDropSpeed(int silverDropSpeed) {
-        this.silverDropSpeed = silverDropSpeed;
-    }
-
-    public int getCopperDropSpeed() {
-        return copperDropSpeed;
-    }
-
-    public void setCopperDropSpeed(int copperDropSpeed) {
-        this.copperDropSpeed = copperDropSpeed;
-    }
-
     public ArrayList<Location> getGoldLocation() {
         return goldLocation;
     }
@@ -261,41 +215,46 @@ public class RoomData {
         this.silverLocation = silver;
     }
 
-    public ArrayList<Location> getCopperLocation() {
-        return copperLocation;
+    public ArrayList<Location> getEmeraldLocation() {
+        return emeraldLocation;
     }
 
-    public void setCopperLocation() {
-        ArrayList<Location> copper = new ArrayList<>();
-        for (String s : this.getCopperPos()) {
+    public ArrayList<Location> getDiamondLocation() {
+        return diamondLocation;
+    }
+
+    public ArrayList<String> getEmeraldPos() {
+        return emeraldPos;
+    }
+
+    public void setEmeraldPos(ArrayList<String> emeraldPos) {
+        this.emeraldPos = emeraldPos;
+    }
+
+    public ArrayList<String> getDiamondPos() {
+        return diamondPos;
+    }
+
+    public void setDiamondPos(ArrayList<String> diamondPos) {
+        this.diamondPos = diamondPos;
+    }
+
+    public void setEmeraldLocation() {
+        ArrayList<Location> emerald = new ArrayList<>();
+        for (String s : this.getEmeraldPos()) {
             String[] a = s.split(":");
-            copper.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
+            emerald.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
         }
-        this.copperLocation = copper;
+        this.emeraldLocation = emerald;
     }
 
-    public int getGoldToExp() {
-        return goldToExp;
-    }
-
-    public void setGoldToExp(int goldToExp) {
-        this.goldToExp = goldToExp;
-    }
-
-    public int getSilverToExp() {
-        return silverToExp;
-    }
-
-    public void setSilverToExp(int silverToExp) {
-        this.silverToExp = silverToExp;
-    }
-
-    public int getCopperToExp() {
-        return copperToExp;
-    }
-
-    public void setCopperToExp(int copperToExp) {
-        this.copperToExp = copperToExp;
+    public void setDiamondeLocation() {
+        ArrayList<Location> diamond = new ArrayList<>();
+        for (String s : this.getDiamondPos()) {
+            String[] a = s.split(":");
+            diamond.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
+        }
+        this.diamondLocation = diamond;
     }
 
     public ArrayList<String> getGoldPos() {
@@ -312,14 +271,6 @@ public class RoomData {
 
     public void setSilverPos(ArrayList<String> silverPos) {
         this.silverPos = silverPos;
-    }
-
-    public ArrayList<String> getCopperPos() {
-        return copperPos;
-    }
-
-    public void setCopperPos(ArrayList<String> copperPos) {
-        this.copperPos = copperPos;
     }
 
     public int getSet() {

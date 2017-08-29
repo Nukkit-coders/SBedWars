@@ -34,8 +34,6 @@ public class RoomConfig {
 
     public void addRoom(RoomData data) {
         LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("resourcesType", data.getResourcesType());
-        room.put("shopType", data.getShopType());
         room.put("id", data.getId());
         room.put("disName", data.getDisName());
         room.put("min-player", data.getMin());
@@ -50,15 +48,8 @@ public class RoomConfig {
         room.put("sign-pos", data.getSignPos());
         room.put("gold-pos", data.getGoldPos());
         room.put("silver-pos", data.getSilverPos());
-        room.put("copper-pos", data.getCopperPos());
-        room.put("gold-drop-speed", data.getGoldDropSpeed());
-        room.put("silver-drop-speed", data.getSilverDropSpeed());
-        room.put("copper-drop-speed", data.getCopperDropSpeed());
-        if (data.getResourcesType() == 2) {
-            room.put("gold-to-exp", data.getGoldToExp());
-            room.put("silver-to-exp", data.getSilverToExp());
-            room.put("copper-to-exp", data.getCopperToExp());
-        }
+        room.put("diamond-pos", data.getDiamondPos());
+        room.put("emerald-pos", data.getEmeraldPos());
         this.getConfig().setAll(room);
         this.getConfig().save();
     }
