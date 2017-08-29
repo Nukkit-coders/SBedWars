@@ -53,7 +53,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static Item diamond;
     public static Item emerald;
     private static SBedWars instance;
-    public static Item[] showItem = new Item[3];
+    public static Item[] showItem = new Item[4];
 
     public static SBedWars getInstance() {
         return instance;

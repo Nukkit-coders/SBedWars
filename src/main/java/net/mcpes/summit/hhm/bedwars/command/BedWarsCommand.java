@@ -106,6 +106,28 @@ public class BedWarsCommand extends Command {
                                     data.setSet(3);
                                     sender.sendMessage(DEFAULT_TITLE + "成功,接下来请输入/bw set team <队伍数量> 来设置队伍数量");
                                     break;
+                                case 5:
+                                    int rid = data.getId();
+                                    try {
+                                        RoomConfig rc = new RoomConfig(rid);
+                                        rc.addRoom(data);
+                                    } catch (NoClassDefFoundError e) {
+                                        e.printStackTrace();
+                                    }
+                                    add.remove(sender.getName());
+                                    try {
+                                        Server.getInstance().unloadLevel(Server.getInstance().getLevelByName(data.getGameWorld()));
+                                        FileFunction.copy(Server.getInstance().getDataPath() + "/worlds/" + data.getGameWorld() + "/", new File(SBedWars.getInstance().getDataFolder() + "/worlds/" + data.getGameWorld() + "/").getCanonicalPath());
+                                        FileFunction.remove(new File(Server.getInstance().getDataPath() + "/worlds/" + data.getGameWorld() + "/"));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    sender.sendMessage(DEFAULT_TITLE + "成功设置" + rid + "号房间!,请在插件配置文件的" + rid + ".yml中进行后续的设置!");
+                                    break;
+                                default:
+                                    sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步并不是这个");
+                                    break;
+
                             }
                             return true;
                         case 2:
@@ -164,20 +186,33 @@ public class BedWarsCommand extends Command {
                                             ArrayList<String> silver = data.getSilverPos();
                                             silver.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
                                             data.setSilverPos(silver);
-                                            sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置银的掉落请继续输入/bw set silver ,否则请输入/bw set copper 来设置铜的掉落!");
+                                            sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置银的掉落请继续输入/bw set silver ,否则请输入/bw set diamond 来设置钻石的掉落!");
                                             break;
                                         default:
                                             sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步并不是这个");
                                             break;
                                     }
                                     break;
-                                case "copper":
+                                case "diamond":
                                     switch (data.getSet()) {
                                         case 5:
-                                            ArrayList<String> copper = data.getCopperPos();
-                                            copper.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
-                                            data.setCopperPos(copper);
-                                            sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置铜的掉落请继续输入/bw set copper ,否则请输入/bw set type <1/2> 设置游戏模式,1为金银铜掉落物品兑换,2为经验模式");
+                                            ArrayList<String> diamond = data.getDiamondPos();
+                                            diamond.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
+                                            data.setDiamondPos(diamond);
+                                            sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置钻石的掉落请继续输入/bw set diamond ,否则请输入/bw set emerald 来设置绿宝石的掉落");
+                                            break;
+                                        default:
+                                            sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步并不是这个");
+                                            break;
+                                    }
+                                    break;
+                                case "emerald":
+                                    switch (data.getSet()) {
+                                        case 5:
+                                            ArrayList<String> emerald = data.getEmeraldPos();
+                                            emerald.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
+                                            data.setEmeraldPos(emerald);
+                                            sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置钻石的掉落请继续输入/bw set emerald ,否则请输入/bw set 来结束房间设置");
                                             break;
                                         default:
                                             sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步并不是这个");
@@ -188,41 +223,6 @@ public class BedWarsCommand extends Command {
                             break;
                         case 3:
                             switch (strings[1]) {
-                                case "type":
-                                    switch (data.getSet()) {
-                                        case 5:
-                                            try {
-                                                int type = Integer.valueOf(strings[2]);
-                                                if (type != 1 && type != 2) {
-                                                    sender.sendMessage(DEFAULT_TITLE + "你输入的数字不为1或2!");
-                                                    return false;
-                                                }
-                                                data.setResourcesType(type);
-                                                int rid = data.getId();
-                                                try {
-                                                    RoomConfig rc = new RoomConfig(rid);
-                                                    rc.addRoom(data);
-                                                }catch (NoClassDefFoundError e){
-                                                    e.printStackTrace();
-                                                }
-                                                add.remove(sender.getName());
-                                                try {
-                                                    Server.getInstance().unloadLevel(Server.getInstance().getLevelByName(data.getGameWorld()));
-                                                    FileFunction.copy(Server.getInstance().getDataPath() + "/worlds/" + data.getGameWorld() + "/", new File(SBedWars.getInstance().getDataFolder() + "/worlds/" + data.getGameWorld() + "/").getCanonicalPath());
-                                                    FileFunction.remove(new File(Server.getInstance().getDataPath() + "/worlds/" + data.getGameWorld() + "/"));
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                sender.sendMessage(DEFAULT_TITLE + "成功设置" + rid + "号房间!,请在插件配置文件的" + rid + ".yml中进行后续的设置!");
-                                            } catch (NumberFormatException e) {
-                                                sender.sendMessage(DEFAULT_TITLE + "你输入的数字不为1或2!");
-                                            }
-                                            break;
-                                        default:
-                                            sender.sendMessage(DEFAULT_TITLE + "失败!你的下一步并不是这个");
-                                            break;
-                                    }
-                                    break;
                                 case "team":
                                     switch (data.getSet()) {
                                         case 3:

@@ -48,6 +48,13 @@ public class BedWars {
         roomPlayers.put("spectator", new ArrayList<>());
         players.put(this.id, roomPlayers);
         games.put(this.id, this);
+        HashMap<Integer, HashMap<String, Object>> td = data.getTeamData();
+        for (int key : data.getTeamData().keySet()) {
+            HashMap<String, Object> value = data.getTeamData().get(key);
+            value.remove("kill");
+            td.put(key, value);
+        }
+        data.setTeamData(td, 2);
         this.gameMode = 1;
         this.teams = new HashMap<>();
         this.chestData = new HashMap<>();
@@ -66,7 +73,6 @@ public class BedWars {
                 SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§7<§b" + player.getName() + "§7> §6加入了房间! (" + this.getAllPlayers().size() + "/" + data.getMax() + ")");
                 player.teleport(data.getWaitLocation());
                 player.sendMessage("§4已经保存背包物品");
-                //TODO: save bag and config
                 this.giveBag(player);
                 player.dataPacket(craftingDataPacket);
                 player.sendMessage("§6已经更换了您的背包,可在游戏结束后输入/sw bag拿回物品(关服重启之前,如果在关服重启之后,神器,附魔等高级物品将消失掉原本效果)");
@@ -86,10 +92,19 @@ public class BedWars {
         }
     }
 
-    public void onQuit(Player player, boolean online) {
+    public synchronized void onQuit(Player player, boolean online) {
+        int teamID = -1;
+        if (gameMode == 3) {
+            teamID = this.getTeam(player.getName());
+        }
         this.delPlayer(player);
         gaming.remove(player.getName());
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§7<§b" + player.getName() + "§7> §6退出了房间! (" + this.getAlivePlayers().size() + "/" + data.getMax() + ")");
+        if (teamID != -1) {
+            if (this.getTeam(teamID).size() == 0) {
+                SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "\n  §l§f团灭 > 队伍:" + data.getTeamData().get(teamID).get("name") + " §6已被淘汰!");
+            }
+        }
         if (online) {
             Server.getInstance().sendRecipeList(player);
             player.setHealth(player.getMaxHealth());
@@ -119,6 +134,7 @@ public class BedWars {
             Location pos = (Location) data.get("shopLocation");
             pos.level.setBlock(pos, Block.get(58));
         }
+        SBedWars.getInstance().broadcastMessage(this.getAllPlayers(), "§l§a-------------------\n  §6起床战争:\n§e保护你的床并摧毁敌人的床。通过各种资源生成器收集银,金,绿宝石和钻石来获得强大的道具,让你和你的队伍变得更加强大!");
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§l§7-------------------");
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§2Game Starts!");
         SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§l§7-------------------");
@@ -127,7 +143,7 @@ public class BedWars {
         Server.getInstance().getScheduler().scheduleRepeatingTask(new GameTask(this.data, this), 20);
     }
 
-    void onStop() {
+    private void onStop() {
         SBedWars.getInstance().getServer().getLogger().info(this.id + "号房间已经停止游戏");
         this.setGameMode(4);
         this.resetSign();
@@ -140,6 +156,7 @@ public class BedWars {
     }
 
     void onWin(int id) {
+        SBedWarsAPI.getInstance().broadcastMessage(this.getAllPlayers(), "§l§6队伍:" + data.getTeamData().get(id).get("name").toString() + " 获得了最终的胜利！");
         for (String name : this.teams.get(id)) {
             Player player = Server.getInstance().getPlayerExact(name);
             player.sendMessage("§5***************");
@@ -150,8 +167,9 @@ public class BedWars {
             player.setSpawn(Server.getInstance().getDefaultLevel().getSafeSpawn());
             player.teleport(this.data.getStopLocation());
             player.getInventory().clearAll();
-            this.onQuit(player,false);
         }
+        ArrayList<String> n = this.teams.get(id);
+        n.forEach((name) -> this.onQuit(Server.getInstance().getPlayerExact(name), false));
         SBedWarsAPI.getInstance().broadcastTitle(getAllPlayers(),0, 30, 0,"", TextFormat.colorize("&6队伍 &e"+ rooms.get(this.id).getTeamData().get(id).get("name") + " &b获得了胜利!"));
         this.onStop();
     }
@@ -215,20 +233,20 @@ public class BedWars {
         return players.get(this.id).get("all");
     }
 
-    public ArrayList<Player> getAlivePlayers() {
+    ArrayList<Player> getAlivePlayers() {
         return players.get(this.id).get("alive");
     }
 
-    public ArrayList<Player> getSpectatorPlayers() {
+    private ArrayList<Player> getSpectatorPlayers() {
         return players.get(this.id).get("spectator");
     }
 
-    public void addPlayer(Player player) {
+    private void addPlayer(Player player) {
         this.getAlivePlayers().add(player);
         this.getAllPlayers().add(player);
     }
 
-    public void delPlayer(Player player) {
+    private void delPlayer(Player player) {
         this.getAlivePlayers().remove(player);
         this.getAllPlayers().remove(player);
         this.getSpectatorPlayers().remove(player);
@@ -236,7 +254,7 @@ public class BedWars {
             ArrayList<String> map = teams.get(this.getTeam(player.getName()));
             map.remove(player.getName());
             this.teams.put(this.getTeam(player.getName()),map);
-        }catch (NullPointerException e){
+        } catch (NullPointerException ignored) {
         }
     }
 
@@ -244,7 +262,7 @@ public class BedWars {
         return gameMode;
     }
 
-    public void setGameMode(int gameMode) {
+    private void setGameMode(int gameMode) {
         this.gameMode = gameMode;
     }
 
@@ -252,7 +270,7 @@ public class BedWars {
         return this.teams.get(id);
     }
 
-    public boolean choiceTeam(int id, String player) {
+    private void choiceTeam(int id, String player) {
         boolean flag = true;
         for (ArrayList<String> a : this.teams.values()) {
             if (a.size() + 1 < this.getTeam(id).size()) {
@@ -264,7 +282,6 @@ public class BedWars {
             this.getTeam(id).add(player);
             Server.getInstance().getPlayerExact(player).setSpawn((Location) this.data.getTeamData().get(id).get("gameLocation"));
         }
-        return flag;
     }
 
     public int getTeam(String player) {
@@ -275,7 +292,7 @@ public class BedWars {
         return -1;
     }
 
-    public ArrayList<String> getNotHasTeamPlayers() {
+    private ArrayList<String> getNotHasTeamPlayers() {
         ArrayList<String> players = new ArrayList<>();
         for (Player player : this.getAlivePlayers()) {
             players.add(player.getName());
@@ -286,7 +303,7 @@ public class BedWars {
         return players;
     }
 
-    public void distributionTeam() {
+    private void distributionTeam() {
         ArrayList<String> notHasTeamPlayers = this.getNotHasTeamPlayers();
         for (String player : notHasTeamPlayers) {
             int id = this.getMinId(this.getTeamSize());
@@ -295,7 +312,7 @@ public class BedWars {
         }
     }
 
-    public HashMap<Integer, Integer> getTeamSize() {
+    HashMap<Integer, Integer> getTeamSize() {
         HashMap<Integer, Integer> mdz = new HashMap<>();
         for (Integer id : this.teams.keySet()) {
             mdz.put(id, this.getTeam(id).size());
@@ -303,7 +320,7 @@ public class BedWars {
         return mdz;
     }
 
-    public int getMinId(HashMap<Integer, Integer> map) {
+    private int getMinId(HashMap<Integer, Integer> map) {
         if (map == null) return 0;
         Collection<Integer> c = map.values();
         Object[] obj = c.toArray();
@@ -416,8 +433,10 @@ class GameTask extends PluginTask<SBedWars> {
         this.data = data;
         this.game = game;
         this.gameTick = data.getGameTime();
-        this.gold = 9 / data.getMax();
-        this.silver = 3 / data.getMax();
+        int g = 9 / data.getMax() + 1;
+        this.gold = g < 3 ? 3 : g;
+        g = 3 / data.getMax() + 1;
+        this.silver = g < 1 ? 1 : g;
         this.diamond = 30;
         this.emerald = 60;
         this.emeraldLevel = 1;
@@ -468,6 +487,13 @@ class GameTask extends PluginTask<SBedWars> {
                     diamondLevel++;
                 }
             }
+        }
+        for (Player player : this.game.getAllPlayers()) {
+            player.sendTip("                                                                               " + DEFAULT_TITLE + "\n                                                                               " +
+                    (levelUp <= 6 ? "§6距离" + (this.levelUp % 2 == 0 ? "§2绿宝石" : "§b钻石") + "生成器升级还有" + this.int2Time(this.tick % 180) : "§e所有生成器已经满级") + "\n" +
+                    this.getTeamTip()
+            );
+
         }
         switch (this.gameTick) {
             case 10:
@@ -526,6 +552,29 @@ class GameTask extends PluginTask<SBedWars> {
                 this.cancel();
             }
         }
+    }
+
+    private String int2Time(int time) {
+        if (time < 60) {
+            if (time < 10) {
+                return "00:0" + time;
+            } else {
+                return "00:" + time;
+            }
+        } else {
+            int min = (time - (time % 60)) / 60;
+            return min + ":" + (time % 60 < 10 ? "0" + time % 60 : time % 60);
+        }
+    }
+
+    private String getTeamTip() {
+        StringBuilder tip = new StringBuilder();
+        for (int key : data.getTeamData().keySet()) {
+            HashMap<String, Object> value = data.getTeamData().get(key);
+            tip.append("\n                                                                               ");
+            tip.append("§6§l队伍:").append(value.get("name")).append((value.containsKey("kill") && (boolean) value.get("kill")) ? " §c✘ " + this.game.getTeam(key).size() : " §a✔ " + this.game.getTeam(key).size());
+        }
+        return tip.toString();
     }
 
     private void updateFloatingText(int type) {

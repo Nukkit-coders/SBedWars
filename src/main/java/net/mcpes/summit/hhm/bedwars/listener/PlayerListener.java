@@ -199,13 +199,13 @@ public class PlayerListener implements Listener {
             SBedWarsAPI.getInstance().broadcastMessage(games.get(room).getAllPlayers(), "最终击杀！");
             event.getEntity().sendMessage(DEFAULT_TITLE + "你的队伍核心不在,你不能够重生!");
             event.getEntity().getInventory().clearAll();
-            event.setCancelled(true);
             games.get(room).onQuit(event.getEntity(), true);
         } else {
             event.getEntity().sendMessage(DEFAULT_TITLE + "重生!");
             event.setKeepInventory(false);
             event.getEntity().getInventory().clearAll();
         }
+        event.setCancelled(true);
         for (Item item : event.getDrops()) {
             if(item.getId() == 265 || item.getId() == 266 || item.getId() == 336) {
                 event.getEntity().level.dropItem(event.getEntity().getLocation(), item);
@@ -238,6 +238,5 @@ public class PlayerListener implements Listener {
                 event.setCancelled(true);
             }
         }
-
     }
 }
