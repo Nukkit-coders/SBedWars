@@ -26,7 +26,7 @@ import static net.mcpes.summit.hhm.bedwars.SBedWars.*;
  */
 
 public class BedWars {
-    public HashMap<Integer, ArrayList<String>> teams;
+    public HashMap<Integer, HashSet<String>> teams;
     public HashMap<String, Integer> chestData;
     private int id;
     private int gameMode;
@@ -42,10 +42,10 @@ public class BedWars {
 
     private void init() {
         players.remove(this.id);
-        HashMap<String, ArrayList<Player>> roomPlayers = new HashMap<>();
-        roomPlayers.put("alive", new ArrayList<>());
-        roomPlayers.put("all", new ArrayList<>());
-        roomPlayers.put("spectator", new ArrayList<>());
+        HashMap<String, HashSet<Player>> roomPlayers = new HashMap<>();
+        roomPlayers.put("alive", new HashSet<>());
+        roomPlayers.put("all", new HashSet<>());
+        roomPlayers.put("spectator", new HashSet<>());
         players.put(this.id, roomPlayers);
         games.put(this.id, this);
         HashMap<Integer, HashMap<String, Object>> td = data.getTeamData();
@@ -59,7 +59,7 @@ public class BedWars {
         this.teams = new HashMap<>();
         this.chestData = new HashMap<>();
         for (Integer id : data.getTeamData().keySet()) {
-            this.teams.put(id, new ArrayList<>());
+            this.teams.put(id, new HashSet<>());
         }
     }
 
@@ -122,7 +122,7 @@ public class BedWars {
     void onStart() {
         this.distributionTeam();
         for (Integer id : this.teams.keySet()) {
-            ArrayList<String> teamPlayers = this.teams.get(id);
+            HashSet<String> teamPlayers = this.teams.get(id);
             for (String player : teamPlayers) {
                 Player p = Server.getInstance().getPlayerExact(player);
                 p.teleport((Location) this.data.getTeamData().get(id).get("gameLocation"));
@@ -168,7 +168,7 @@ public class BedWars {
             player.teleport(this.data.getStopLocation());
             player.getInventory().clearAll();
         }
-        ArrayList<String> n = this.teams.get(id);
+        HashSet<String> n = this.teams.get(id);
         n.forEach((name) -> this.onQuit(Server.getInstance().getPlayerExact(name), false));
         SBedWarsAPI.getInstance().broadcastTitle(getAllPlayers(),0, 30, 0,"", TextFormat.colorize("&6队伍 &e"+ rooms.get(this.id).getTeamData().get(id).get("name") + " &b获得了胜利!"));
         this.onStop();
@@ -229,15 +229,15 @@ public class BedWars {
         }
     }
 
-    public ArrayList<Player> getAllPlayers() {
+    public HashSet<Player> getAllPlayers() {
         return players.get(this.id).get("all");
     }
 
-    ArrayList<Player> getAlivePlayers() {
+    HashSet<Player> getAlivePlayers() {
         return players.get(this.id).get("alive");
     }
 
-    private ArrayList<Player> getSpectatorPlayers() {
+    private HashSet<Player> getSpectatorPlayers() {
         return players.get(this.id).get("spectator");
     }
 
@@ -251,7 +251,7 @@ public class BedWars {
         this.getAllPlayers().remove(player);
         this.getSpectatorPlayers().remove(player);
         try {
-            ArrayList<String> map = teams.get(this.getTeam(player.getName()));
+            HashSet<String> map = teams.get(this.getTeam(player.getName()));
             map.remove(player.getName());
             this.teams.put(this.getTeam(player.getName()),map);
         } catch (NullPointerException ignored) {
@@ -266,13 +266,13 @@ public class BedWars {
         this.gameMode = gameMode;
     }
 
-    public ArrayList<String> getTeam(int id) {
+    public HashSet<String> getTeam(int id) {
         return this.teams.get(id);
     }
 
     private void choiceTeam(int id, String player) {
         boolean flag = true;
-        for (ArrayList<String> a : this.teams.values()) {
+        for (HashSet<String> a : this.teams.values()) {
             if (a.size() + 1 < this.getTeam(id).size()) {
                 flag = false;
                 break;
@@ -286,25 +286,25 @@ public class BedWars {
 
     public int getTeam(String player) {
         for (Integer id : this.teams.keySet()) {
-            ArrayList<String> players = this.teams.get(id);
+            HashSet<String> players = this.teams.get(id);
             if (players.contains(player)) return id;
         }
         return -1;
     }
 
-    private ArrayList<String> getNotHasTeamPlayers() {
-        ArrayList<String> players = new ArrayList<>();
+    private HashSet<String> getNotHasTeamPlayers() {
+        HashSet<String> players = new HashSet<>();
         for (Player player : this.getAlivePlayers()) {
             players.add(player.getName());
         }
-        for (ArrayList<String> player : this.teams.values()) {
+        for (HashSet<String> player : this.teams.values()) {
             players.removeAll(player);
         }
         return players;
     }
 
     private void distributionTeam() {
-        ArrayList<String> notHasTeamPlayers = this.getNotHasTeamPlayers();
+        HashSet<String> notHasTeamPlayers = this.getNotHasTeamPlayers();
         for (String player : notHasTeamPlayers) {
             int id = this.getMinId(this.getTeamSize());
             this.choiceTeam(id, player);
@@ -425,8 +425,8 @@ class GameTask extends PluginTask<SBedWars> {
     private int levelUp;
     private int emeraldLevel;
     private int diamondLevel;
-    private ArrayList<Long> diamondEid;
-    private ArrayList<Long> emeraldEid;
+    private HashSet<Long> diamondEid;
+    private HashSet<Long> emeraldEid;
 
     GameTask(RoomData data, BedWars game) {
         super(SBedWars.getInstance());
@@ -441,8 +441,8 @@ class GameTask extends PluginTask<SBedWars> {
         this.emerald = 60;
         this.emeraldLevel = 1;
         this.diamondLevel = 1;
-        this.diamondEid = new ArrayList<>();
-        this.emeraldEid = new ArrayList<>();
+        this.diamondEid = new HashSet<>();
+        this.emeraldEid = new HashSet<>();
         data.getDiamondLocation().forEach((Location pos) -> {
             data.getGameLevel().dropItem(pos.add(0, 3, 0), SBedWars.showItem[2], null, true, 10);
         });
@@ -456,32 +456,32 @@ class GameTask extends PluginTask<SBedWars> {
         this.tick++;
         this.gameTick--;
         this.checkTeam();
+        this.updateFloatingText(3);
+        this.updateFloatingText(4);
         if (this.tick % gold == 0) {
             for (Location location : data.getGoldLocation()) {
-                location.level.dropItem(location, SBedWars.gold);
+                if (location.level != null) location.level.dropItem(location, SBedWars.gold);
             }
         }
         if (this.tick % silver == 0) {
             for (Location location : data.getSilverLocation()) {
-                location.level.dropItem(location, SBedWars.silver);
+                if (location.level != null) location.level.dropItem(location, SBedWars.silver);
             }
         }
         if (this.tick % diamond == 0) {
             for (Location location : data.getDiamondLocation()) {
-                location.level.dropItem(location, SBedWars.diamond);
-                this.updateFloatingText(3);
+                if (location.level != null) location.level.dropItem(location, SBedWars.diamond);
             }
         }
         if (this.tick % emerald == 0) {
             for (Location location : data.getEmeraldLocation()) {
-                location.level.dropItem(location, SBedWars.emerald);
-                this.updateFloatingText(4);
+                if (location.level != null) location.level.dropItem(location, SBedWars.emerald);
             }
         }
         if (this.tick % 180 == 0) {
             if (levelUp <= 6) {
                 this.levelUp++;
-                if (this.levelUp % 2 == 0) {
+                if (this.levelUp % 2 != 0) {
                     emeraldLevel++;
                 } else {
                     diamondLevel++;
@@ -489,8 +489,8 @@ class GameTask extends PluginTask<SBedWars> {
             }
         }
         for (Player player : this.game.getAllPlayers()) {
-            player.sendTip("                                                                               " + DEFAULT_TITLE + "\n                                                                               " +
-                    (levelUp <= 6 ? "§6距离" + (this.levelUp % 2 == 0 ? "§2绿宝石" : "§b钻石") + "生成器升级还有" + this.int2Time(this.tick % 180) : "§e所有生成器已经满级") + "\n" +
+            player.sendTip("                                                      " + DEFAULT_TITLE + "\n                                                      " +
+                    (levelUp <= 6 ? "§6距离" + (this.levelUp % 2 != 0 ? "§2绿宝石" : "§b钻石") + "生成器升级还有" + this.int2Time(180 - (this.tick % 180)) : "§e所有生成器已经满级") + "\n" +
                     this.getTeamTip()
             );
 
@@ -571,7 +571,7 @@ class GameTask extends PluginTask<SBedWars> {
         StringBuilder tip = new StringBuilder();
         for (int key : data.getTeamData().keySet()) {
             HashMap<String, Object> value = data.getTeamData().get(key);
-            tip.append("\n                                                                               ");
+            tip.append("\n                                                      ");
             tip.append("§6§l队伍:").append(value.get("name")).append((value.containsKey("kill") && (boolean) value.get("kill")) ? " §c✘ " + this.game.getTeam(key).size() : " §a✔ " + this.game.getTeam(key).size());
         }
         return tip.toString();
@@ -583,11 +583,11 @@ class GameTask extends PluginTask<SBedWars> {
                 //diamond
                 if (this.diamondEid.size() == 0) {
                     for (Location pos : data.getDiamondLocation()) {
-                        this.diamondEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + this.tick % diamond + "§a秒后产出", pos.add(0, 3.5, 0)));
+                        this.diamondEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + (this.diamond - (this.tick % diamond)) + "§a秒后产出", pos.add(0, 3.5, 0)));
                     }
                 } else {
                     for (Long eid : this.diamondEid) {
-                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + this.tick % diamond + "§a秒后产出");
+                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.diamondLevel == 1 ? "I" : this.diamondLevel == 2 ? "II" : "III"), "§b钻石生成器\n§a将在§c" + (this.diamond - (this.tick % diamond)) + "§a秒后产出");
                     }
                 }
             }
@@ -595,11 +595,11 @@ class GameTask extends PluginTask<SBedWars> {
             case 4: {
                 if (this.emeraldEid.size() == 0) {
                     for (Location pos : data.getDiamondLocation()) {
-                        this.emeraldEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + this.tick % emerald + "§a秒后产出", pos.add(0, 3.5, 0)));
+                        this.emeraldEid.add(FloatingTextPacket.addFloatingText(game.getAllPlayers(), "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + (this.emerald - (this.tick % emerald)) + "§a秒后产出", pos.add(0, 3.5, 0)));
                     }
                 } else {
                     for (Long eid : this.emeraldEid) {
-                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + this.tick % emerald + "§a秒后产出");
+                        FloatingTextPacket.setFloatingText(game.getAllPlayers(), eid, "§6§l等级" + (this.emeraldLevel == 1 ? "I" : this.emeraldLevel == 2 ? "II" : "III"), "§2绿宝石生成器\n§a将在§c" + (this.emerald - (this.tick % emerald)) + "§a秒后产出");
                     }
                 }
             }

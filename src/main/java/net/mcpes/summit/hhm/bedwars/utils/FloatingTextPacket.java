@@ -9,10 +9,10 @@ import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.RemoveEntityPacket;
 import cn.nukkit.network.protocol.SetEntityDataPacket;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class FloatingTextPacket {
-    public static long addFloatingText(ArrayList<Player> players, String title, String text, Position pos) {
+    public static long addFloatingText(HashSet<Player> players, String title, String text, Position pos) {
         if (players.isEmpty()) return 1L;
         long eid = Entity.entityCount++;
         AddEntityPacket pk = new AddEntityPacket();
@@ -33,7 +33,7 @@ public class FloatingTextPacket {
         return eid;
     }
 
-    public static long addFloatingText(ArrayList<Player> players, long eid, String title, String text, Position pos) {
+    public static long addFloatingText(HashSet<Player> players, long eid, String title, String text, Position pos) {
         if (players.isEmpty()) return 1L;
         AddEntityPacket pk = new AddEntityPacket();
         pk.entityUniqueId = eid;
@@ -53,7 +53,7 @@ public class FloatingTextPacket {
         return eid;
     }
 
-    public static void setFloatingText(ArrayList<Player> players, long eid, String title, String text) {
+    public static void setFloatingText(HashSet<Player> players, long eid, String title, String text) {
         if (players.isEmpty()) return;
         SetEntityDataPacket npk = new SetEntityDataPacket();
         long flags = 114688L;
@@ -62,7 +62,7 @@ public class FloatingTextPacket {
         Server.broadcastPacket(players, npk);
     }
 
-    public static boolean removeFloatingText(ArrayList<Player> players, long eid) {
+    public static boolean removeFloatingText(HashSet<Player> players, long eid) {
         if (players.isEmpty()) return false;
         RemoveEntityPacket pk = new RemoveEntityPacket();
         pk.eid = eid;

@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.level.Location;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * @author hhm
@@ -27,23 +27,23 @@ public interface SBedWarsAPI {
 
     void loadWorld(String worldName) throws IOException;
 
-    void broadcastMessage(ArrayList<Player> p, String msg);
+    void broadcastMessage(Set<Player> p, String msg);
 
-    void broadcastMessage2(ArrayList<Player> p, String msg,Player player);
+    void broadcastMessage2(Set<Player> p, String msg, Player player);
 
-    void broadcastMessage3(ArrayList<Player> p, String msg,Player player);
+    void broadcastMessage3(Set<Player> p, String msg, Player player);
 
-    void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg);
+    void broadcastTitle(Set<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg);
 
-    void broadcastSound(ArrayList<Player> p, int type);
+    void broadcastSound(Set<Player> p, int type);
 
-    void broadcastTip(ArrayList<Player> p, String msg);
+    void broadcastTip(Set<Player> p, String msg);
 
-    void broadcastSpeak(ArrayList<Player> p, String pn, String msg);
+    void broadcastSpeak(Set<Player> p, String pn, String msg);
 
-    void broadcastTeamSpeak(ArrayList<String> p, String pn, String msg);
+    void broadcastTeamSpeak(Set<String> p, String pn, String msg);
 
-    void broadcastTeamMessage(ArrayList<String> p, String msg);
+    void broadcastTeamMessage(Set<String> p, String msg);
 
     int isPlayerGaming(String name);
 

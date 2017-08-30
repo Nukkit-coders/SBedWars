@@ -23,9 +23,7 @@ import net.mcpes.summit.hhm.bedwars.utils.FileFunction;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author hhm
@@ -43,7 +41,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     public static final String GAMESTATUS_RELOAD = "§6重载房间";
     public static HashMap<Integer, BedWars> games = new HashMap<>();
     public static HashMap<Integer, RoomData> rooms = new HashMap<>();
-    public static HashMap<Integer, HashMap<String, ArrayList<Player>>> players = new HashMap<>();
+    public static HashMap<Integer, HashMap<String, HashSet<Player>>> players = new HashMap<Integer, HashMap<String, HashSet<Player>>>();
     public static HashMap<String, Integer> gaming = new HashMap<>();
     public static HashMap<String, String> touch = new HashMap<>();
     public static HashMap<String, RoomData> add = new HashMap<>();
@@ -139,11 +137,11 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
                 data.setStopPos(cr.getConfig().getString("stop-pos"));
                 data.setVoidKill(cr.getConfig().getInt("voidKill"));
                 data.setTeamData((HashMap<Integer, HashMap<String, Object>>) cr.getConfig().get("teamData"), 1);
-                data.setSignPos((ArrayList) cr.getConfig().get("sign-pos"));
-                data.setGoldPos((ArrayList) cr.getConfig().get("gold-pos"));
-                data.setSilverPos((ArrayList) cr.getConfig().get("silver-pos"));
-                data.setDiamondPos((ArrayList) cr.getConfig().get("diamond-pos"));
-                data.setEmeraldPos((ArrayList) cr.getConfig().get("emerald-pos"));
+                data.setSignPos(new HashSet<>((ArrayList) cr.getConfig().get("sign-pos")));
+                data.setGoldPos(new HashSet<>((ArrayList) cr.getConfig().get("gold-pos")));
+                data.setSilverPos(new HashSet<>((ArrayList) cr.getConfig().get("silver-pos")));
+                data.setDiamondPos(new HashSet<>((ArrayList) cr.getConfig().get("diamond-pos")));
+                data.setEmeraldPos(new HashSet<>((ArrayList) cr.getConfig().get("emerald-pos")));
                 data.setGameLevel();
                 data.setGoldLocation();
                 data.setSignLocation();
@@ -224,7 +222,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastMessage(ArrayList<Player> p, String msg) {
+    public void broadcastMessage(Set<Player> p, String msg) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.sendMessage(DEFAULT_TITLE + msg);
@@ -233,7 +231,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastMessage2(ArrayList<Player> p, String msg,Player player) {
+    public void broadcastMessage2(Set<Player> p, String msg, Player player) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.sendMessage(DEFAULT_TITLE + " "+player.getName() + " >> " +msg);
@@ -242,7 +240,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastMessage3(ArrayList<Player> p, String msg,Player player) {
+    public void broadcastMessage3(Set<Player> p, String msg, Player player) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.sendMessage(DEFAULT_TITLE + TextFormat.colorize("&e大喊 &6>> &d队伍: &b"+rooms.get(SBedWarsAPI.getInstance().isPlayerGaming(player.getName())).getTeamData().get(games.get(SBedWarsAPI.getInstance().isPlayerGaming(player.getName())).getTeam(player.getName())).get("name")+" &e&l"+player.getName() + " &6>> &4" +msg));
@@ -251,7 +249,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTitle(ArrayList<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg) {
+    public void broadcastTitle(Set<Player> p, int fadeIn, int stay, int fadeOut, String msg, String twoMsg) {
         for (Player pl : p) {
             if (pl.isOnline()) {
                 pl.setTitleAnimationTimes(fadeIn, stay, fadeOut);
@@ -265,7 +263,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastSound(ArrayList<Player> p, int type) {
+    public void broadcastSound(Set<Player> p, int type) {
         switch (type) {
             case 1:
                 for (Player pl : p) {
@@ -283,7 +281,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTip(ArrayList<Player> p, String msg) {
+    public void broadcastTip(Set<Player> p, String msg) {
         for (Player pl : p) {
             if (pl.isOnline())
                 pl.sendTip(msg);
@@ -291,14 +289,14 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastSpeak(ArrayList<Player> p, String pn, String msg) {
+    public void broadcastSpeak(Set<Player> p, String pn, String msg) {
         for (Player pl : p) {
             pl.sendMessage(DEFAULT_TITLE + "§7<§b" + pn + "§7>§6: " + msg);
         }
     }
 
     @Override
-    public void broadcastTeamSpeak(ArrayList<String> p, String pn, String msg) {
+    public void broadcastTeamSpeak(Set<String> p, String pn, String msg) {
         for (String name : p) {
             Player pl = this.getServer().getPlayerExact(name);
             pl.sendMessage(DEFAULT_TITLE + "§7<§b" + pn + "§7>§6: " + msg);
@@ -306,8 +304,8 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     }
 
     @Override
-    public void broadcastTeamMessage(ArrayList<String> p, String msg) {
-        ArrayList<Player> players = new ArrayList<>();
+    public void broadcastTeamMessage(Set<String> p, String msg) {
+        Set<Player> players = new HashSet<>();
         for (String name : p) {
             Player pl = this.getServer().getPlayerExact(name);
             players.add(pl);
@@ -333,7 +331,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     @Override
     public void addSign(String pos, int id) {
         RoomConfig cr = new RoomConfig(id);
-        ArrayList<String> sign = (ArrayList<String>) cr.getConfig().get("sign-pos");
+        HashSet<String> sign = (HashSet<String>) cr.getConfig().get("sign-pos");
         sign.add(pos);
         cr.getConfig().set("sign-pos", sign);
         cr.getConfig().save();
@@ -345,7 +343,7 @@ public class SBedWars extends PluginBase implements SBedWarsAPI {
     @Override
     public void delSign(String pos, int id) {
         RoomConfig cr = new RoomConfig(id);
-        ArrayList<String> sign = (ArrayList<String>) cr.getConfig().get("sign-pos");
+        HashSet<String> sign = (HashSet<String>) cr.getConfig().get("sign-pos");
         sign.remove(pos);
         cr.getConfig().set("sign-pos", sign);
         cr.getConfig().save();

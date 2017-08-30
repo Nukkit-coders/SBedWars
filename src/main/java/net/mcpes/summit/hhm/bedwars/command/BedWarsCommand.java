@@ -14,8 +14,8 @@ import net.mcpes.summit.hhm.bedwars.utils.FileFunction;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static net.mcpes.summit.hhm.bedwars.SBedWars.*;
 
@@ -170,7 +170,7 @@ public class BedWarsCommand extends Command {
                                 case "gold":
                                     switch (data.getSet()) {
                                         case 5:
-                                            ArrayList<String> gold = data.getGoldPos();
+                                            HashSet<String> gold = data.getGoldPos();
                                             gold.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
                                             data.setGoldPos(gold);
                                             sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置金的掉落请继续输入/bw set gold ,否则请输入/bw set silver 来设置银的掉落!");
@@ -183,7 +183,7 @@ public class BedWarsCommand extends Command {
                                 case "silver":
                                     switch (data.getSet()) {
                                         case 5:
-                                            ArrayList<String> silver = data.getSilverPos();
+                                            HashSet<String> silver = data.getSilverPos();
                                             silver.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
                                             data.setSilverPos(silver);
                                             sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置银的掉落请继续输入/bw set silver ,否则请输入/bw set diamond 来设置钻石的掉落!");
@@ -196,7 +196,7 @@ public class BedWarsCommand extends Command {
                                 case "diamond":
                                     switch (data.getSet()) {
                                         case 5:
-                                            ArrayList<String> diamond = data.getDiamondPos();
+                                            HashSet<String> diamond = data.getDiamondPos();
                                             diamond.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
                                             data.setDiamondPos(diamond);
                                             sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置钻石的掉落请继续输入/bw set diamond ,否则请输入/bw set emerald 来设置绿宝石的掉落");
@@ -209,7 +209,7 @@ public class BedWarsCommand extends Command {
                                 case "emerald":
                                     switch (data.getSet()) {
                                         case 5:
-                                            ArrayList<String> emerald = data.getEmeraldPos();
+                                            HashSet<String> emerald = data.getEmeraldPos();
                                             emerald.add(((int) player.getX()) + ":" + ((int) player.getY()) + ":" + ((int) player.getZ()) + ":" + player.getLevel().getName());
                                             data.setEmeraldPos(emerald);
                                             sender.sendMessage(DEFAULT_TITLE + "成功!如果想继续设置钻石的掉落请继续输入/bw set emerald ,否则请输入/bw set 来结束房间设置");

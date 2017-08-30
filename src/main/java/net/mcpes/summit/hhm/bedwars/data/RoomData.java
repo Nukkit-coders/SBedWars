@@ -4,8 +4,8 @@ import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static net.mcpes.summit.hhm.bedwars.SBedWars.DEFAULT_TITLE;
 
@@ -26,20 +26,20 @@ public class RoomData {
     private Location waitLocation = null;//等待游戏地点-Location
     private String stopPos = "";//结束游戏地点-String
     private Location stopLocation = null;//结束游戏地点-Location
-    private ArrayList<String> signPos = new ArrayList<>();//牌子地点-String
-    private ArrayList<Location> signLocation = new ArrayList<>();//牌子地点-Location
+    private HashSet<String> signPos = new HashSet<>();//牌子地点-String
+    private HashSet<Location> signLocation = new HashSet<>();//牌子地点-Location
     private String gameWorld = "";//游戏世界名称
     private Level gameLevel = null;//游戏世界
     private HashMap<Integer, HashMap<String, Object>> teamData = new HashMap<>();//队伍信息，包括disName,bedPos,gamePos,shopPos
     private int voidKill = 0;//当玩家y值低于此将自动击杀
-    private ArrayList<Location> goldLocation = new ArrayList<>();//金掉落地点-Location
-    private ArrayList<Location> silverLocation = new ArrayList<>();//银掉落地点-Location
-    private ArrayList<Location> emeraldLocation = new ArrayList<>();//绿宝石掉落地点-Location
-    private ArrayList<Location> diamondLocation = new ArrayList<>();//钻石掉落地点-Location
-    private ArrayList<String> goldPos = new ArrayList<>();//金掉落地点-Location
-    private ArrayList<String> silverPos = new ArrayList<>();//银掉落地点-Location
-    private ArrayList<String> emeraldPos = new ArrayList<>();//绿宝石掉落地点-LocationLocation
-    private ArrayList<String> diamondPos = new ArrayList<>();//钻石掉落地点-Location
+    private HashSet<Location> goldLocation = new HashSet<>();//金掉落地点-Location
+    private HashSet<Location> silverLocation = new HashSet<>();//银掉落地点-Location
+    private HashSet<Location> emeraldLocation = new HashSet<>();//绿宝石掉落地点-Location
+    private HashSet<Location> diamondLocation = new HashSet<>();//钻石掉落地点-Location
+    private HashSet<String> goldPos = new HashSet<>();//金掉落地点-Location
+    private HashSet<String> silverPos = new HashSet<>();//银掉落地点-Location
+    private HashSet<String> emeraldPos = new HashSet<>();//绿宝石掉落地点-LocationLocation
+    private HashSet<String> diamondPos = new HashSet<>();//钻石掉落地点-Location
     private int set = 0;//设置步骤,设置房间用
     private int teamCount = 0;//队伍数量,设置房间用
     private int canTeam = 0;
@@ -126,20 +126,20 @@ public class RoomData {
         this.stopLocation = new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3]));
     }
 
-    public ArrayList<String> getSignPos() {
+    public HashSet<String> getSignPos() {
         return signPos;
     }
 
-    public void setSignPos(ArrayList<String> signPos) {
+    public void setSignPos(HashSet<String> signPos) {
         this.signPos = signPos;
     }
 
-    public ArrayList<Location> getSignLocation() {
+    public HashSet<Location> getSignLocation() {
         return signLocation;
     }
 
     public void setSignLocation() {
-        ArrayList<Location> sign = new ArrayList<>();
+        HashSet<Location> sign = new HashSet<>();
         for (String s : this.getSignPos()) {
             String[] a = s.split(":");
             sign.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
@@ -189,12 +189,12 @@ public class RoomData {
         this.voidKill = voidKill;
     }
 
-    public ArrayList<Location> getGoldLocation() {
+    public HashSet<Location> getGoldLocation() {
         return goldLocation;
     }
 
     public void setGoldLocation() {
-        ArrayList<Location> gold = new ArrayList<>();
+        HashSet<Location> gold = new HashSet<>();
         for (String s : this.getGoldPos()) {
             String[] a = s.split(":");
             gold.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
@@ -202,12 +202,12 @@ public class RoomData {
         this.goldLocation = gold;
     }
 
-    public ArrayList<Location> getSilverLocation() {
+    public HashSet<Location> getSilverLocation() {
         return silverLocation;
     }
 
     public void setSilverLocation() {
-        ArrayList<Location> silver = new ArrayList<>();
+        HashSet<Location> silver = new HashSet<>();
         for (String s : this.getSilverPos()) {
             String[] a = s.split(":");
             silver.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
@@ -215,32 +215,32 @@ public class RoomData {
         this.silverLocation = silver;
     }
 
-    public ArrayList<Location> getEmeraldLocation() {
+    public HashSet<Location> getEmeraldLocation() {
         return emeraldLocation;
     }
 
-    public ArrayList<Location> getDiamondLocation() {
+    public HashSet<Location> getDiamondLocation() {
         return diamondLocation;
     }
 
-    public ArrayList<String> getEmeraldPos() {
+    public HashSet<String> getEmeraldPos() {
         return emeraldPos;
     }
 
-    public void setEmeraldPos(ArrayList<String> emeraldPos) {
+    public void setEmeraldPos(HashSet<String> emeraldPos) {
         this.emeraldPos = emeraldPos;
     }
 
-    public ArrayList<String> getDiamondPos() {
+    public HashSet<String> getDiamondPos() {
         return diamondPos;
     }
 
-    public void setDiamondPos(ArrayList<String> diamondPos) {
+    public void setDiamondPos(HashSet<String> diamondPos) {
         this.diamondPos = diamondPos;
     }
 
     public void setEmeraldLocation() {
-        ArrayList<Location> emerald = new ArrayList<>();
+        HashSet<Location> emerald = new HashSet<>();
         for (String s : this.getEmeraldPos()) {
             String[] a = s.split(":");
             emerald.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
@@ -249,7 +249,7 @@ public class RoomData {
     }
 
     public void setDiamondeLocation() {
-        ArrayList<Location> diamond = new ArrayList<>();
+        HashSet<Location> diamond = new HashSet<>();
         for (String s : this.getDiamondPos()) {
             String[] a = s.split(":");
             diamond.add(new Location(Integer.valueOf(a[0]), Integer.valueOf(a[1]), Integer.valueOf(a[2]), Server.getInstance().getLevelByName(a[3])));
@@ -257,19 +257,19 @@ public class RoomData {
         this.diamondLocation = diamond;
     }
 
-    public ArrayList<String> getGoldPos() {
+    public HashSet<String> getGoldPos() {
         return goldPos;
     }
 
-    public void setGoldPos(ArrayList<String> goldPos) {
+    public void setGoldPos(HashSet<String> goldPos) {
         this.goldPos = goldPos;
     }
 
-    public ArrayList<String> getSilverPos() {
+    public HashSet<String> getSilverPos() {
         return silverPos;
     }
 
-    public void setSilverPos(ArrayList<String> silverPos) {
+    public void setSilverPos(HashSet<String> silverPos) {
         this.silverPos = silverPos;
     }
 

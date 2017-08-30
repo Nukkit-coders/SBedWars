@@ -239,4 +239,12 @@ public class PlayerListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onTouch(PlayerInteractEvent event) {
+        int room = SBedWarsAPI.getInstance().isPlayerGaming(event.getPlayer().getName());
+        if (room != -1) {
+            if (games.get(room).getGameMode() != 3) event.setCancelled(true);
+        }
+    }
 }
